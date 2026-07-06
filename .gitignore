@@ -2,3 +2,9 @@ node_modules/
 dist/
 .DS_Store
 *.log
+.vercel
+.env
+.env.*
+
+# 生成画像はWeb最適化済みのjpgのみコミットする（png原本はローカル保持）
+public/photos/*.png

@@ -1,0 +1,78 @@
+/* ═══════════════════════════════════════════════════════════════
+   Medixus Clinic — Design Tokens (Calm Medical)
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Surfaces */
+  --mx-white: #ffffff;
+  --mx-off-white: #f8f7f3;
+  --mx-surface: #f0eee8;
+
+  /* Text */
+  --mx-ink: #202827;
+  --mx-muted: #586462;
+  --mx-subtle: #8a928f;
+
+  /* Accent — deep teal */
+  --mx-teal: #0f766e;
+  --mx-teal-dark: #115e59;
+  --mx-teal-light: #f0fdfa;
+  --mx-teal-border: #ccfbf1;
+
+  /* Semantic */
+  --mx-warning: #d97706;
+  --mx-success: #059669;
+  --mx-success-light: #ecfdf5;
+  --mx-success-border: #a7f3d0;
+  --mx-danger: #dc2626;
+
+  /* Borders */
+  --mx-border: #dfddd4;
+  --mx-border-light: #ece9e1;
+
+  --mx-radius: 0.5rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "YuGothic", "Segoe UI", sans-serif;
+  background: var(--mx-white);
+  color: var(--mx-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+/* chips (デバイスUI内で使用) */
+.mx-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+}
+
+.mx-chip-waiting {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.mx-chip-active {
+  background: #d1fae5;
+  color: #065f46;
+}

@@ -615,7 +615,102 @@ export function MonitorOverlay({ persona }: { persona: Persona }) {
   );
 }
 
-/* ═══════════ STEP 5: 会計（スマホ領収） ═══════════ */
+/* ═══════════ STEP 5: 専門医マッチング ═══════════ */
+
+export function MatchingOverlay({ persona }: { persona: Persona }) {
+  const m = persona.matching;
+  const stage = useStages([1900, 1500, 1200, 5200, 800]);
+  // 0: 検索中 / 1: マッチ / 2: 招待→接続 / 3: 専門医が話す / 4: カルテ追記 / 5: まとめチップ
+  const searching = stage === 0;
+  const matched = stage >= 1;
+  const connected = stage >= 3;
+  const noted = stage >= 4;
+
+  return (
+    <div className="td-device" style={{ width: 'min(24rem, 90vw)' }}>
+      <div style={{ background: 'rgba(255,255,255,0.97)', borderRadius: '1.1rem', overflow: 'hidden', border: '1px solid var(--mx-border-light)' }}>
+        <ScreenHeader
+          title="専門医マッチング"
+          sub="提携医療法人 — 医師プール"
+          right={
+            searching ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.6rem', fontWeight: 800 }}>
+                <Wave /> 検索中
+              </span>
+            ) : (
+              <span style={{ fontSize: '0.6rem', fontWeight: 800 }}>✓ マッチ</span>
+            )
+          }
+        />
+        <div style={{ padding: '0.85rem 0.95rem', display: 'grid', gap: '0.6rem' }}>
+          {/* 検索条件 */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+            {['検査結果', 'AI問診サマリ', '本日の所見'].map((c) => (
+              <span key={c} className="td-chip-ai">✦ {c}</span>
+            ))}
+          </div>
+
+          {searching && (
+            <div style={{ background: 'var(--mx-off-white)', border: '1px solid var(--mx-border-light)', borderRadius: '0.7rem', padding: '0.7rem 0.8rem', fontSize: '0.68rem', fontWeight: 700, color: 'var(--mx-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Wave /> 全国の提携医師プールから最適な専門医を検索しています…
+            </div>
+          )}
+
+          {matched && (
+            <div style={{ background: '#fff', border: '1px solid var(--mx-border)', borderRadius: '0.8rem', padding: '0.7rem 0.8rem', animation: 'td-pop .35s cubic-bezier(0.2,1.2,0.4,1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                <svg width={40} height={40} viewBox="-30 -34 60 64" aria-hidden style={{ flex: '0 0 auto' }}>
+                  <circle cx={0} cy={2} r={27} fill="var(--mx-teal)" opacity={0.12} />
+                  <rect x={-13} y={-6} width={26} height={30} rx={13} fill="#e8f4f1" stroke="var(--mx-teal)" strokeWidth={2} />
+                  <circle cx={0} cy={-15} r={11} fill="#f3d9c3" />
+                  <path d="M -11 -17 A 11 11 0 0 1 11 -17 L 11 -13.5 L -11 -13.5 Z" fill="#3f3a36" />
+                </svg>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--mx-teal-dark)' }}>{m.specialty}</div>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 900 }}>{m.doctor}</div>
+                  <div style={{ fontSize: '0.58rem', fontWeight: 700, color: connected ? 'var(--mx-success)' : 'var(--mx-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span style={{ width: '0.45rem', height: '0.45rem', borderRadius: 999, background: connected ? 'var(--mx-success)' : '#d97706', display: 'inline-block' }} />
+                    {connected ? 'モニターに合流中（オンライン）' : stage >= 2 ? 'モニターに招待しています…' : 'オンライン待機中'}
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: '0.5rem', fontSize: '0.62rem', lineHeight: 1.65, color: 'var(--mx-muted)', borderTop: '1px dashed var(--mx-border-light)', paddingTop: '0.45rem' }}>
+                推奨理由: {m.reason}
+              </div>
+            </div>
+          )}
+
+          {connected && (
+            <div style={{ background: '#10221d', color: '#f0fbf8', borderRadius: '0.8rem', padding: '0.7rem 0.8rem', animation: 'td-pop .35s cubic-bezier(0.2,1.2,0.4,1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#9ff0e2' }}>● LIVE — {m.specialty} {m.doctor}</span>
+                <span style={{ color: '#9ff0e2' }}><Wave /></span>
+              </div>
+              <div style={{ fontSize: '0.68rem', lineHeight: 1.7 }}>
+                <TypeText text={`「${m.advice}」`} active cps={26} />
+              </div>
+            </div>
+          )}
+
+          {noted && (
+            <div style={{ display: 'grid', gap: '0.4rem', animation: 'td-pop .3s' }}>
+              <CheckRow label="専門医の所見をカルテに自動追記" sub="AI下書き・主治医の確認済み" done />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                {['移動ゼロ', '紹介状ゼロ', 'たらい回しゼロ'].map((c) => (
+                  <span key={c} style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--mx-success)', background: 'var(--mx-success-light)', border: '1px solid var(--mx-success-border)', borderRadius: 999, padding: '0.2rem 0.6rem' }}>
+                    ✓ {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════ STEP 6: 会計（スマホ領収） ═══════════ */
 
 export function PhonePayOverlay({ persona }: { persona: Persona }) {
   const stage = useStages([700, 800, 800, 800, 900]);

@@ -33,6 +33,13 @@ export type Persona = {
   rxItems: number;
   revisitSummary: string[];
   revisitPlan: string;
+  /** 専門医マッチング (step5) */
+  matching: {
+    specialty: string;
+    doctor: string;
+    reason: string;
+    advice: string;
+  };
 };
 
 export const PERSONAS: Persona[] = [
@@ -77,6 +84,12 @@ export const PERSONAS: Persona[] = [
       '経過: 発熱は2日で解熱。咽頭痛も改善傾向と問診で回答。',
     ],
     revisitPlan: '症状消失を確認。治癒として経過観察終了。',
+    matching: {
+      specialty: '耳鼻咽喉科',
+      doctor: '高橋医師',
+      reason: '扁桃の腫脹がやや強く、専門医の所見確認を推奨',
+      advice: '扁桃の状態を確認しました。膿栓や偏位はなく、切開が必要な所見ではありません。溶連菌検査の結果と合わせて、現在の処方で経過を見て大丈夫です。',
+    },
   },
   {
     id: 'misaki',
@@ -119,6 +132,12 @@ export const PERSONAS: Persona[] = [
       '経過: 休憩・ストレッチ導入後、頭痛頻度は改善傾向。',
     ],
     revisitPlan: '頻度・強度ともに改善。頓用継続とし、セルフケアを継続指導。',
+    matching: {
+      specialty: '脳神経内科',
+      doctor: '藤井医師',
+      reason: '2週間持続する頭痛。危険な頭痛（red flag）の専門的な除外を推奨',
+      advice: '所見を確認しました。画像検査が必要なサインはありません。緊張型頭痛として、頓用薬と休憩・睡眠の調整で経過を見ましょう。悪化時はすぐ再診を。',
+    },
   },
   {
     id: 'kiyoshi',
@@ -161,6 +180,12 @@ export const PERSONAS: Persona[] = [
       '予定: 今回は血液検査（腎機能・脂質）を実施予定。',
     ],
     revisitPlan: '血圧安定。予定どおり採血を実施し、現行処方を継続。',
+    matching: {
+      specialty: '循環器内科',
+      doctor: '中村医師',
+      reason: '年1回の専門医レビューの時期。心電図・血圧手帳の確認を推奨',
+      advice: '血圧手帳と心電図を確認しました。コントロールは非常に良好です。現行処方の継続で問題ありません。次回の採血結果も私が確認しますね。',
+    },
   },
 ];
 
@@ -188,6 +213,7 @@ export type OverlayKind =
   | 'kiosk'
   | 'board'
   | 'monitor'
+  | 'matching'
   | 'phone-pay'
   | 'pharmacy'
   | 'revisit'
@@ -206,6 +232,8 @@ export type StepDef = {
   hud?: { label: string; value: string };
   flows?: Array<'kiosk' | 'exam' | 'billing' | 'pharmacy'>;
   interstitial?: string;
+  /** 到着時に表示する一人称のリアル視界（gpt-image-2生成写真） */
+  pov?: string;
 };
 
 export const STEPS: StepDef[] = [
@@ -227,6 +255,7 @@ export const STEPS: StepDef[] = [
     walk: [SPOTS.streetStart, { x: 470, y: 1000 }],
     overlay: 'phone-intake',
     hud: { label: '事前受付', value: 'スマホで完了' },
+    pov: '/photos/pov-01-intake.jpg',
   },
   {
     id: 2,
@@ -239,6 +268,7 @@ export const STEPS: StepDef[] = [
     overlay: 'kiosk',
     hud: { label: '受付にかかった時間', value: '3秒' },
     flows: ['kiosk'],
+    pov: '/photos/pov-03-kiosk.jpg',
   },
   {
     id: 3,
@@ -250,21 +280,35 @@ export const STEPS: StepDef[] = [
     walk: [SPOTS.kiosk, { x: 700, y: 830 }, SPOTS.waitingSeat],
     overlay: 'board',
     hud: { label: '予想待ち時間', value: '約8分' },
+    pov: '/photos/pov-04-waiting.jpg',
   },
   {
     id: 4,
     shortTitle: '診察',
     title: '医師は、あなたと話すだけ',
-    desc: 'AIが診察の会話を聞き取り、SOAPカルテと処方候補を下書き。医師はあなたに集中するだけ。原因がわかりにくい症状なら、提携医師プールの専門医が診察室のモニターにオンラインで合流します。',
-    note: 'AIカルテ × 専門医オンラインマッチング',
+    desc: 'AIが診察の会話を聞き取り、SOAPカルテと処方候補を下書き。医師は目の前のあなたに集中し、最後に確認して署名するだけです。',
+    note: 'AIでSOAP自動生成（医師確認必須）',
     camera: { x: 350, y: 400, scale: 2.0 },
     walk: [SPOTS.waitingSeat, { x: 700, y: 830 }, { x: 620, y: 700 }, SPOTS.corridorMid, SPOTS.examDoor, SPOTS.examSeat],
     overlay: 'monitor',
     hud: { label: 'カルテ入力の待ち時間', value: '0分' },
     flows: ['exam'],
+    pov: '/photos/pov-05-doctor.jpg',
   },
   {
     id: 5,
+    shortTitle: '専門医マッチング',
+    title: 'その場で、専門医が現れる',
+    desc: '「どの科に行けばいいかわからない」でも大丈夫。検査結果とAIサマリをもとに、提携医療法人の医師プールから最適な専門医が選ばれ、診察室のモニターにオンラインで合流します。別の病院への移動も、紹介状も不要です。',
+    note: '医師プール × オンライン合流 — たらい回しゼロ',
+    camera: { x: 380, y: 400, scale: 1.9 },
+    overlay: 'matching',
+    hud: { label: '専門医にかかるまで', value: '0日（その場で合流）' },
+    flows: ['exam'],
+    pov: '/photos/pov-06-matching.jpg',
+  },
+  {
+    id: 6,
     shortTitle: '会計',
     title: '診察室を出たら、会計は終わっていた',
     desc: '算定から保険点数の照合、キャッシュレス決済まで全自動。精算機の前を、そのまま通り過ぎて帰れます。',
@@ -274,9 +318,10 @@ export const STEPS: StepDef[] = [
     overlay: 'phone-pay',
     hud: { label: '会計の待ち時間', value: '0分' },
     flows: ['billing'],
+    pov: '/photos/pov-07-pay.jpg',
   },
   {
-    id: 6,
+    id: 7,
     shortTitle: 'おくすり',
     title: '薬局には、処方箋が先回り',
     desc: '電子処方箋は診察終了と同時に薬局の調剤キューへ。あなたが着いた頃には、お薬の準備ができています。',
@@ -286,9 +331,10 @@ export const STEPS: StepDef[] = [
     overlay: 'pharmacy',
     hud: { label: '薬局での待ち時間', value: '約1分' },
     flows: ['pharmacy'],
+    pov: '/photos/pov-08-pharmacy.jpg',
   },
   {
-    id: 7,
+    id: 8,
     shortTitle: '再診',
     title: '2回目は、もっとスムーズ',
     desc: '受付3秒、問診は変化の確認だけ。AIが前回カルテを要約して医師に手渡すので、診察はすぐ本題から始まります。',
@@ -299,9 +345,10 @@ export const STEPS: StepDef[] = [
     hud: { label: '滞在時間', value: '12分（初回18分）' },
     flows: ['kiosk', 'exam', 'billing', 'pharmacy'],
     interstitial: '─ 1週間後 ─',
+    pov: '/photos/pov-09-revisit.jpg',
   },
   {
-    id: 8,
+    id: 9,
     shortTitle: 'まとめ',
     title: '診察のあいだに、すべてが終わるクリニック',
     desc: '',
@@ -309,6 +356,7 @@ export const STEPS: StepDef[] = [
     walk: [SPOTS.examSeat, SPOTS.examDoor, SPOTS.corridorMid, { x: 620, y: 900 }, SPOTS.entranceOut],
     overlay: null,
     flows: ['kiosk', 'exam', 'billing', 'pharmacy'],
+    pov: '/photos/tp-01-exterior.jpg',
   },
 ];
 
@@ -317,7 +365,7 @@ export const FINALE_KPIS = [
   { label: '本日の来院', value: '42', unit: '人', delta: '+18%' },
   { label: '平均待ち時間', value: '8', unit: '分', delta: '−63%' },
   { label: 'カルテ作成時間', value: '1.2', unit: '分/件', delta: '−78%' },
-  { label: 'AI下書き反映 p50', value: '6.8', unit: '秒', delta: 'リアルタイム' },
+  { label: '専門医にかかるまで', value: '0', unit: '日', delta: 'その場で合流' },
   { label: 'レセプト照合済', value: '100', unit: '%', delta: '自動' },
   { label: '受付・会計スタッフ', value: '0', unit: '人', delta: 'ほぼ無人' },
 ];

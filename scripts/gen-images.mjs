@@ -56,6 +56,10 @@ const IMAGES = [
     prompt: `${STYLE}\n${POV}\nScene: standing at a bright pharmacy counter next door to the clinic; a smiling Japanese pharmacist in a white coat hands over a small white paper medicine bag across the light wooden counter.`,
   },
   {
+    id: 'pov-09-revisit',
+    prompt: `${STYLE}\n${POV}\nScene: back in the same consultation room one week later; the same friendly Japanese male doctor in a white coat smiles warmly at the camera (at you) with a reassuring, pleased expression, sitting relaxed at the light wooden desk with a slim monitor angled aside; bright morning light, calm and happy mood of recovery.`,
+  },
+  {
     id: 'tp-01-exterior',
     prompt: `${STYLE}\nThird-person wide shot: street view of a small modern one-story clinic with large glass windows, warm light glowing from inside at dusk; teal "Medixus Clinic" signage; a small pharmacy visible next door; quiet Japanese neighborhood street with a tree.`,
   },

@@ -619,40 +619,83 @@ export function MonitorOverlay({ persona }: { persona: Persona }) {
 
 export function MatchingOverlay({ persona }: { persona: Persona }) {
   const m = persona.matching;
-  const stage = useStages([1900, 1500, 1200, 5200, 800]);
-  // 0: 検索中 / 1: マッチ / 2: 招待→接続 / 3: 専門医が話す / 4: カルテ追記 / 5: まとめチップ
-  const searching = stage === 0;
-  const matched = stage >= 1;
-  const connected = stage >= 3;
-  const noted = stage >= 4;
+  const stage = useStages([700, 700, 700, 600, 2000, 1500, 1300, 5400, 800]);
+  // 1-3: 根拠（AI問診/診察所見/院内検査）が揃う / 4: 医師プール照合中 /
+  // 5: マッチ / 6: 招待 / 7: 合流(LIVE) / 8: カルテ追記 / 9: まとめチップ
+  const inputs = [
+    { label: 'AI問診', value: m.inputs.intake },
+    { label: '診察所見', value: m.inputs.exam },
+    { label: '院内検査', value: m.inputs.test },
+  ];
+  const inputsDone = stage >= 3;
+  const matched = stage >= 5;
+  const connected = stage >= 7;
+  const noted = stage >= 8;
 
   return (
-    <div className="td-device" style={{ width: 'min(24rem, 90vw)' }}>
+    <div className="td-device" style={{ width: 'min(25rem, 90vw)' }}>
       <div style={{ background: 'rgba(255,255,255,0.97)', borderRadius: '1.1rem', overflow: 'hidden', border: '1px solid var(--mx-border-light)' }}>
         <ScreenHeader
           title="専門医マッチング"
           sub="提携医療法人 — 医師プール"
           right={
-            searching ? (
+            stage >= 4 && !matched ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.6rem', fontWeight: 800 }}>
-                <Wave /> 検索中
+                <Wave /> 照合中
               </span>
-            ) : (
+            ) : matched ? (
               <span style={{ fontSize: '0.6rem', fontWeight: 800 }}>✓ マッチ</span>
-            )
+            ) : undefined
           }
         />
         <div style={{ padding: '0.85rem 0.95rem', display: 'grid', gap: '0.6rem' }}>
-          {/* 検索条件 */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-            {['検査結果', 'AI問診サマリ', '本日の所見'].map((c) => (
-              <span key={c} className="td-chip-ai">✦ {c}</span>
+          {/* 今日の診療から集まった「根拠」 */}
+          <div style={{ background: '#fff', border: '1px solid var(--mx-border-light)', borderRadius: '0.8rem', padding: '0.55rem 0.75rem' }}>
+            <div className="td-row" style={{ marginBottom: '0.15rem' }}>
+              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--mx-muted)' }}>マッチングの根拠 — 本日の診療から</span>
+              {inputsDone && <span style={{ fontSize: '0.56rem', fontWeight: 800, color: 'var(--mx-success)' }}>✓ 3/3</span>}
+            </div>
+            {inputs.map((row, i) => (
+              <div
+                key={row.label}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.5rem',
+                  padding: '0.32rem 0',
+                  opacity: stage >= i + 1 ? 1 : 0.25,
+                  transition: 'opacity .35s',
+                  borderTop: i > 0 ? '1px dashed var(--mx-border-light)' : 'none',
+                }}
+              >
+                <span
+                  style={{
+                    flex: '0 0 auto',
+                    fontSize: '0.56rem',
+                    fontWeight: 800,
+                    color: 'var(--mx-teal-dark)',
+                    background: 'var(--mx-teal-light)',
+                    border: '1px solid var(--mx-teal-border)',
+                    borderRadius: 999,
+                    padding: '0.16rem 0.5rem',
+                    minWidth: '4.2rem',
+                    textAlign: 'center',
+                  }}
+                >
+                  {row.label}
+                </span>
+                <span style={{ fontSize: '0.64rem', fontWeight: 600, lineHeight: 1.55, color: 'var(--mx-ink)' }}>
+                  {row.value}
+                  {stage >= i + 1 && <span style={{ color: 'var(--mx-success)', fontWeight: 900, marginLeft: '0.3rem' }}>✓</span>}
+                </span>
+              </div>
             ))}
           </div>
 
-          {searching && (
-            <div style={{ background: 'var(--mx-off-white)', border: '1px solid var(--mx-border-light)', borderRadius: '0.7rem', padding: '0.7rem 0.8rem', fontSize: '0.68rem', fontWeight: 700, color: 'var(--mx-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Wave /> 全国の提携医師プールから最適な専門医を検索しています…
+          {/* 根拠 → 医師プール照合 */}
+          {stage >= 4 && !matched && (
+            <div style={{ background: 'var(--mx-off-white)', border: '1px solid var(--mx-border-light)', borderRadius: '0.7rem', padding: '0.7rem 0.8rem', fontSize: '0.66rem', fontWeight: 700, color: 'var(--mx-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem', animation: 'td-pop .3s' }}>
+              <Wave /> ↑ この内容をもとに、提携医師プールから最適な専門医を照合しています…
             </div>
           )}
 
@@ -670,12 +713,12 @@ export function MatchingOverlay({ persona }: { persona: Persona }) {
                   <div style={{ fontSize: '0.88rem', fontWeight: 900 }}>{m.doctor}</div>
                   <div style={{ fontSize: '0.58rem', fontWeight: 700, color: connected ? 'var(--mx-success)' : 'var(--mx-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
                     <span style={{ width: '0.45rem', height: '0.45rem', borderRadius: 999, background: connected ? 'var(--mx-success)' : '#d97706', display: 'inline-block' }} />
-                    {connected ? 'モニターに合流中（オンライン）' : stage >= 2 ? 'モニターに招待しています…' : 'オンライン待機中'}
+                    {connected ? 'モニターに合流中（オンライン）' : stage >= 6 ? 'モニターに招待しています…' : 'オンライン待機中'}
                   </div>
                 </div>
               </div>
               <div style={{ marginTop: '0.5rem', fontSize: '0.62rem', lineHeight: 1.65, color: 'var(--mx-muted)', borderTop: '1px dashed var(--mx-border-light)', paddingTop: '0.45rem' }}>
-                推奨理由: {m.reason}
+                選定理由: {m.reason}
               </div>
             </div>
           )}

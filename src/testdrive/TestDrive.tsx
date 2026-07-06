@@ -71,8 +71,6 @@ export default function TestDrive() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [interstitial, setInterstitial] = useState<string | null>(null);
   const [walking, setWalking] = useState(false);
-  /** 表示中の一人称POV写真（移動中は直前のものをフェードアウトさせる） */
-  const [povSrc, setPovSrc] = useState<string | null>(null);
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<HTMLDivElement>(null);
@@ -271,20 +269,6 @@ export default function TestDrive() {
     camTargetRef.current = STEPS[step].camera;
   }, [step]);
 
-  // 到着時（show）にそのステップのPOV写真へ差し替える
-  useEffect(() => {
-    if (phase === 'show') setPovSrc(STEPS[step].pov ?? null);
-  }, [phase, step]);
-
-  // POV写真を事前読み込みして切替時のポップインを防ぐ
-  useEffect(() => {
-    STEPS.forEach((s) => {
-      if (s.pov) {
-        const img = new Image();
-        img.src = s.pov;
-      }
-    });
-  }, []);
 
   /* ── derived UI state ── */
 
@@ -292,13 +276,11 @@ export default function TestDrive() {
   const showCard = phase === 'show' && step >= 1 && step < LAST_STEP && persona !== null;
   const showIntro = step === 0;
   const showFinale = step === LAST_STEP && phase === 'show';
-  // POV表示中はマップが隠れるので、マーカーは俯瞰ビューのときだけ
   const marker =
-    phase === 'show' && persona && step >= 1 && step < LAST_STEP && !def.pov
+    phase === 'show' && persona && step >= 1 && step < LAST_STEP
       ? STEPS[step + 1]?.walk?.[STEPS[step + 1].walk!.length - 1] ?? null
       : null;
   const flows = phase === 'show' || step === LAST_STEP ? def.flows ?? [] : [];
-  const povVisible = phase === 'show' && !!def.pov && persona !== null;
 
   const overlayNode = (() => {
     if (!persona || phase !== 'show') return null;
@@ -324,9 +306,12 @@ export default function TestDrive() {
     }
   })();
 
-  // POV写真の構図（被写体が中央〜左）を活かすため、UIは基本右寄せ
   const overlayAlign =
-    def.overlay === 'board' ? 'center' : def.overlay === 'pharmacy' ? 'left' : 'right';
+    def.overlay === 'monitor' || def.overlay === 'board' || def.overlay === 'revisit'
+      ? 'center'
+      : def.overlay === 'pharmacy'
+        ? 'left'
+        : 'right';
 
   return (
     <div className="td-root">
@@ -357,19 +342,6 @@ export default function TestDrive() {
           </ClinicWorld>
         </div>
       </div>
-
-      {/* ── first-person real view（到着時に俯瞰マップから視界へ切替） ── */}
-      {povSrc && (
-        <div className={`td-pov-layer ${povVisible ? 'visible' : ''}`} aria-hidden={!povVisible}>
-          <img key={povSrc} src={povSrc} alt="" />
-          <div className="td-pov-shade" />
-          {step < LAST_STEP && (
-            <span className="td-pov-badge">
-              <span className="rec" aria-hidden /> REAL VIEW — 患者視点
-            </span>
-          )}
-        </div>
-      )}
 
       {/* ── device overlays ── */}
       {overlayNode && (

@@ -8,3 +8,4 @@ dist/
 
 # 生成画像はWeb最適化済みのjpgのみコミットする（png原本はローカル保持）
 public/photos/*.png
+archive/

@@ -39,6 +39,8 @@ export type Persona = {
     doctor: string;
     reason: string;
     advice: string;
+    /** マッチングの根拠（AI問診 / 診察所見 / 院内検査） */
+    inputs: { intake: string; exam: string; test: string };
   };
 };
 
@@ -89,6 +91,11 @@ export const PERSONAS: Persona[] = [
       doctor: '高橋医師',
       reason: '扁桃の腫脹がやや強く、専門医の所見確認を推奨',
       advice: '扁桃の状態を確認しました。膿栓や偏位はなく、切開が必要な所見ではありません。溶連菌検査の結果と合わせて、現在の処方で経過を見て大丈夫です。',
+      inputs: {
+        intake: '咽頭痛・発熱38.2℃（昨夜から）',
+        exam: '扁桃腫大・白苔なし・頸部リンパ節圧痛',
+        test: '溶連菌迅速抗原: 陰性 ／ 体温38.1℃',
+      },
     },
   },
   {
@@ -137,6 +144,11 @@ export const PERSONAS: Persona[] = [
       doctor: '藤井医師',
       reason: '2週間持続する頭痛。危険な頭痛（red flag）の専門的な除外を推奨',
       advice: '所見を確認しました。画像検査が必要なサインはありません。緊張型頭痛として、頓用薬と休憩・睡眠の調整で経過を見ましょう。悪化時はすぐ再診を。',
+      inputs: {
+        intake: '頭痛が2週間持続・夕方に増悪',
+        exam: '神経学的異常なし・項部/僧帽筋に圧痛',
+        test: '血圧118/74・脈拍68整',
+      },
     },
   },
   {
@@ -185,6 +197,11 @@ export const PERSONAS: Persona[] = [
       doctor: '中村医師',
       reason: '年1回の専門医レビューの時期。心電図・血圧手帳の確認を推奨',
       advice: '血圧手帳と心電図を確認しました。コントロールは非常に良好です。現行処方の継続で問題ありません。次回の採血結果も私が確認しますね。',
+      inputs: {
+        intake: '自覚症状なし・服薬遵守良好',
+        exam: '心音・呼吸音に異常なし・浮腫なし',
+        test: '血圧128/78・心電図 洞調律',
+      },
     },
   },
 ];
@@ -232,8 +249,6 @@ export type StepDef = {
   hud?: { label: string; value: string };
   flows?: Array<'kiosk' | 'exam' | 'billing' | 'pharmacy'>;
   interstitial?: string;
-  /** 到着時に表示する一人称のリアル視界（gpt-image-2生成写真） */
-  pov?: string;
 };
 
 export const STEPS: StepDef[] = [
@@ -255,7 +270,6 @@ export const STEPS: StepDef[] = [
     walk: [SPOTS.streetStart, { x: 470, y: 1000 }],
     overlay: 'phone-intake',
     hud: { label: '事前受付', value: 'スマホで完了' },
-    pov: '/photos/pov-01-intake.jpg',
   },
   {
     id: 2,
@@ -268,7 +282,6 @@ export const STEPS: StepDef[] = [
     overlay: 'kiosk',
     hud: { label: '受付にかかった時間', value: '3秒' },
     flows: ['kiosk'],
-    pov: '/photos/pov-03-kiosk.jpg',
   },
   {
     id: 3,
@@ -280,7 +293,6 @@ export const STEPS: StepDef[] = [
     walk: [SPOTS.kiosk, { x: 700, y: 830 }, SPOTS.waitingSeat],
     overlay: 'board',
     hud: { label: '予想待ち時間', value: '約8分' },
-    pov: '/photos/pov-04-waiting.jpg',
   },
   {
     id: 4,
@@ -293,19 +305,17 @@ export const STEPS: StepDef[] = [
     overlay: 'monitor',
     hud: { label: 'カルテ入力の待ち時間', value: '0分' },
     flows: ['exam'],
-    pov: '/photos/pov-05-doctor.jpg',
   },
   {
     id: 5,
     shortTitle: '専門医マッチング',
     title: 'その場で、専門医が現れる',
-    desc: '「どの科に行けばいいかわからない」でも大丈夫。検査結果とAIサマリをもとに、提携医療法人の医師プールから最適な専門医が選ばれ、診察室のモニターにオンラインで合流します。別の病院への移動も、紹介状も不要です。',
+    desc: '「どの科に行けばいいかわからない」でも大丈夫。AI問診・診察の所見・院内の一般検査の結果をもとに、提携医療法人の医師プールから最適な専門医が選ばれ、診察室のモニターにオンラインで合流します。別の病院への移動も、紹介状も不要です。',
     note: '医師プール × オンライン合流 — たらい回しゼロ',
     camera: { x: 380, y: 400, scale: 1.9 },
     overlay: 'matching',
     hud: { label: '専門医にかかるまで', value: '0日（その場で合流）' },
     flows: ['exam'],
-    pov: '/photos/pov-06-matching.jpg',
   },
   {
     id: 6,
@@ -318,7 +328,6 @@ export const STEPS: StepDef[] = [
     overlay: 'phone-pay',
     hud: { label: '会計の待ち時間', value: '0分' },
     flows: ['billing'],
-    pov: '/photos/pov-07-pay.jpg',
   },
   {
     id: 7,
@@ -331,7 +340,6 @@ export const STEPS: StepDef[] = [
     overlay: 'pharmacy',
     hud: { label: '薬局での待ち時間', value: '約1分' },
     flows: ['pharmacy'],
-    pov: '/photos/pov-08-pharmacy.jpg',
   },
   {
     id: 8,
@@ -345,7 +353,6 @@ export const STEPS: StepDef[] = [
     hud: { label: '滞在時間', value: '12分（初回18分）' },
     flows: ['kiosk', 'exam', 'billing', 'pharmacy'],
     interstitial: '─ 1週間後 ─',
-    pov: '/photos/pov-09-revisit.jpg',
   },
   {
     id: 9,
@@ -356,7 +363,6 @@ export const STEPS: StepDef[] = [
     walk: [SPOTS.examSeat, SPOTS.examDoor, SPOTS.corridorMid, { x: 620, y: 900 }, SPOTS.entranceOut],
     overlay: null,
     flows: ['kiosk', 'exam', 'billing', 'pharmacy'],
-    pov: '/photos/tp-01-exterior.jpg',
   },
 ];
 

@@ -144,7 +144,7 @@ export type ClinicWorldProps = {
 
 function ClinicWorldBase({ flows, marker, onMarkerClick, step, fluid, children }: ClinicWorldProps) {
   const kioskOn = step >= 2;
-  const monitorOn = step === 4 || step >= 7;
+  const monitorOn = step === 4 || step === 5 || step >= 8;
   const boardOn = step >= 2;
 
   return (

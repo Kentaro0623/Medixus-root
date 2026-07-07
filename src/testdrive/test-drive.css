@@ -718,6 +718,14 @@
   padding: 0.24rem 0.65rem;
 }
 
+.td-persona .tagline {
+  margin-top: 0.45rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--mx-muted);
+  line-height: 1.45;
+}
+
 .td-persona .check {
   position: absolute;
   top: 0.6rem;

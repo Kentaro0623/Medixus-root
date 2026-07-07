@@ -452,9 +452,9 @@ export default function TestDrive() {
             <span className="td-card-step">MEDIXUS CLINIC — TEST DRIVE</span>
             <h1>スマートクリニックを、仮想受診しよう</h1>
             <p>
-              あなたの分身を選んでください。受付から診察・会計・おくすりまで、
+              あなたの分身を選んでください。受付から診察・会計・おくすりまで約2分。
               <br />
-              「待たないクリニック」を約2分で一周できます。
+              4人それぞれで、違う「待たないクリニック」の顔が見られます。
             </p>
           </div>
           <div className="td-personas">
@@ -474,6 +474,7 @@ export default function TestDrive() {
                 <span className="name">{p.name}</span>
                 <span className="meta">{p.age}歳・{p.role}</span>
                 <span className="complaint">{p.complaint}</span>
+                <span className="tagline">{p.tagline}</span>
               </button>
             ))}
           </div>

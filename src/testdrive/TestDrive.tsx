@@ -14,6 +14,7 @@ import {
   WORLD_W,
   WORLD_H,
   SPOTS,
+  stepsForPersona,
   type Persona,
   type Vec,
 } from './script';
@@ -33,7 +34,6 @@ import './test-drive.css';
 type Cam = { x: number; y: number; scale: number };
 
 const WALK_SPEED = 300; // world units / sec
-const LAST_STEP = STEPS.length - 1;
 
 function segLengths(path: Vec[]): { lens: number[]; total: number } {
   const lens: number[] = [];
@@ -71,6 +71,13 @@ export default function TestDrive() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [interstitial, setInterstitial] = useState<string | null>(null);
   const [walking, setWalking] = useState(false);
+
+  // ペルソナのジャーニーでステップ列が変わる（specialist-revisit は再診後にマッチング）
+  const activePersona = persona ?? PERSONAS.find((p) => p.id === selectedId) ?? PERSONAS[0];
+  const steps = stepsForPersona(activePersona);
+  const stepsRef = useRef(steps);
+  stepsRef.current = steps;
+  const lastStep = steps.length - 1;
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<HTMLDivElement>(null);
@@ -178,12 +185,12 @@ export default function TestDrive() {
 
   const goTo = useCallback(
     async (next: number, jump = false) => {
-      if (next < 0 || next > LAST_STEP) return;
+      if (next < 0 || next > stepsRef.current.length - 1) return;
       const gen = ++genRef.current;
       const alive = () => aliveRef.current && genRef.current === gen;
       setMenuOpen(false);
       setPhase('travel');
-      const def = STEPS[next];
+      const def = stepsRef.current[next];
       setStep(next);
 
       const walkEnd = def.walk ? def.walk[def.walk.length - 1] : null;
@@ -245,7 +252,7 @@ export default function TestDrive() {
     setInterstitial(null);
     setWalking(false);
     setAvatar(SPOTS.streetStart, 1);
-    applyCamera(STEPS[0].camera, true);
+    applyCamera(stepsRef.current[0].camera, true);
   }, [applyCamera, setAvatar]);
 
   /* ── mount / resize ── */
@@ -266,21 +273,21 @@ export default function TestDrive() {
 
   // keep last "intent" camera for resize re-apply
   useEffect(() => {
-    camTargetRef.current = STEPS[step].camera;
-  }, [step]);
+    camTargetRef.current = steps[step].camera;
+  }, [steps, step]);
 
 
   /* ── derived UI state ── */
 
-  const def = STEPS[step];
-  const showCard = phase === 'show' && step >= 1 && step < LAST_STEP && persona !== null;
+  const def = steps[step];
+  const showCard = phase === 'show' && step >= 1 && step < lastStep && persona !== null;
   const showIntro = step === 0;
-  const showFinale = step === LAST_STEP && phase === 'show';
+  const showFinale = step === lastStep && phase === 'show';
   const marker =
-    phase === 'show' && persona && step >= 1 && step < LAST_STEP
-      ? STEPS[step + 1]?.walk?.[STEPS[step + 1].walk!.length - 1] ?? null
+    phase === 'show' && persona && step >= 1 && step < lastStep
+      ? steps[step + 1]?.walk?.[steps[step + 1].walk!.length - 1] ?? null
       : null;
-  const flows = phase === 'show' || step === LAST_STEP ? def.flows ?? [] : [];
+  const flows = phase === 'show' || step === lastStep ? def.flows ?? [] : [];
 
   const overlayNode = (() => {
     if (!persona || phase !== 'show') return null;
@@ -355,7 +362,7 @@ export default function TestDrive() {
           <span className="td-logo-tag">TEST DRIVE</span>
         </a>
         <div className="td-dots" role="tablist" aria-label="ステップ">
-          {STEPS.map((s, i) => (
+          {steps.map((s, i) => (
             <button
               key={s.id}
               className={`td-dot ${i === step ? 'active' : i < step ? 'done' : ''}`}
@@ -372,7 +379,7 @@ export default function TestDrive() {
 
       {menuOpen && (
         <div className="td-menu">
-          {STEPS.map((s, i) => (
+          {steps.map((s, i) => (
             <button key={s.id} className={i === step ? 'current' : undefined} onClick={() => jumpTo(i)}>
               <span className="td-menu-step">STEP {i}</span>
               {s.shortTitle}
@@ -407,7 +414,7 @@ export default function TestDrive() {
               {def.hud.label}: <strong>{def.hud.value}</strong>
             </span>
           )}
-          {phase === 'show' && (def.flows?.length ?? 0) > 0 && step < LAST_STEP && (
+          {phase === 'show' && (def.flows?.length ?? 0) > 0 && step < lastStep && (
             <span className="td-ai-toast" key={`ai${step}`}>
               <span className="spark" aria-hidden>✦</span>
               Medixus Core が裏側で自動処理中

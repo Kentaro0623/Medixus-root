@@ -619,18 +619,25 @@ export function MonitorOverlay({ persona }: { persona: Persona }) {
 
 export function MatchingOverlay({ persona }: { persona: Persona }) {
   const m = persona.matching;
-  const stage = useStages([700, 700, 700, 600, 2000, 1500, 1300, 5400, 800]);
-  // 1-3: 根拠（AI問診/診察所見/院内検査）が揃う / 4: 医師プール照合中 /
-  // 5: マッチ / 6: 招待 / 7: 合流(LIVE) / 8: カルテ追記 / 9: まとめチップ
+  const cands = m.candidates ?? [];
+  const hasCands = cands.length > 0;
+  // 候補（多科鑑別）があるときは、照合中に候補が1つずつ並んでから1科へ収束する。
+  // 1-3: 根拠が揃う / 4: 照合開始 / (5..4+N: 鑑別候補) / マッチ / 招待 / 合流(LIVE) / カルテ追記
+  const stage = useStages(
+    hasCands
+      ? [600, 600, 600, 500, ...cands.map(() => 700), 1100, 1500, 1300, 6200, 800]
+      : [700, 700, 700, 600, 2000, 1500, 1300, 5400, 800],
+  );
   const inputs = [
     { label: 'AI問診', value: m.inputs.intake },
     { label: '診察所見', value: m.inputs.exam },
     { label: '院内検査', value: m.inputs.test },
   ];
   const inputsDone = stage >= 3;
-  const matched = stage >= 5;
-  const connected = stage >= 7;
-  const noted = stage >= 8;
+  const matchedAt = hasCands ? 5 + cands.length : 5;
+  const matched = stage >= matchedAt;
+  const connected = stage >= matchedAt + 2;
+  const noted = stage >= matchedAt + 3;
 
   return (
     <div className="td-device" style={{ width: 'min(25rem, 90vw)' }}>
@@ -693,9 +700,77 @@ export function MatchingOverlay({ persona }: { persona: Persona }) {
           </div>
 
           {/* 根拠 → 医師プール照合 */}
-          {stage >= 4 && !matched && (
+          {!hasCands && stage >= 4 && !matched && (
             <div style={{ background: 'var(--mx-off-white)', border: '1px solid var(--mx-border-light)', borderRadius: '0.7rem', padding: '0.7rem 0.8rem', fontSize: '0.66rem', fontWeight: 700, color: 'var(--mx-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem', animation: 'td-pop .3s' }}>
               <Wave /> ↑ この内容をもとに、提携医師プールから最適な専門医を照合しています…
+            </div>
+          )}
+
+          {/* 多科にまたがる鑑別 → 1科へ収束 */}
+          {hasCands && stage >= 4 && (
+            <div style={{ background: '#fff', border: '1px solid var(--mx-border-light)', borderRadius: '0.8rem', padding: '0.55rem 0.75rem', animation: 'td-pop .3s' }}>
+              <div className="td-row" style={{ marginBottom: '0.15rem' }}>
+                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--mx-muted)' }}>この症状、何科？ — 可能性のある科</span>
+                {matched ? (
+                  <span style={{ fontSize: '0.56rem', fontWeight: 800, color: 'var(--mx-success)' }}>✓ 1科に確定</span>
+                ) : (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.56rem', fontWeight: 800, color: 'var(--mx-teal-dark)' }}>
+                    <Wave /> 絞り込み中
+                  </span>
+                )}
+              </div>
+              {cands.map((c, i) => {
+                const shown = stage >= 5 + i;
+                const isMatch = Boolean(c.matched);
+                const dimmed = matched && !isMatch;
+                return (
+                  <div
+                    key={c.specialty}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '0.5rem',
+                      padding: '0.34rem 0.4rem',
+                      margin: '0.12rem 0',
+                      borderRadius: '0.55rem',
+                      opacity: shown ? (dimmed ? 0.42 : 1) : 0.18,
+                      background: matched && isMatch ? 'var(--mx-teal-light)' : 'transparent',
+                      border: matched && isMatch ? '1px solid var(--mx-teal-border)' : '1px solid transparent',
+                      transition: 'all .4s',
+                    }}
+                  >
+                    <span
+                      style={{
+                        flex: '0 0 auto',
+                        fontSize: '0.6rem',
+                        fontWeight: 800,
+                        color: matched && isMatch ? 'var(--mx-teal-dark)' : 'var(--mx-ink)',
+                        minWidth: '5.2rem',
+                      }}
+                    >
+                      {c.specialty}
+                    </span>
+                    <span style={{ fontSize: '0.58rem', lineHeight: 1.5, color: 'var(--mx-muted)', fontWeight: 600, flex: 1 }}>
+                      {c.note}
+                    </span>
+                    {matched && (
+                      <span
+                        style={{
+                          flex: '0 0 auto',
+                          fontSize: '0.54rem',
+                          fontWeight: 900,
+                          color: isMatch ? 'var(--mx-success)' : 'var(--mx-subtle)',
+                        }}
+                      >
+                        {isMatch ? '✓ マッチ' : '−'}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+              <div style={{ fontSize: '0.54rem', color: 'var(--mx-subtle)', fontWeight: 600, marginTop: '0.2rem' }}>
+                どの科でも、探して回るのはあなたではありません — Medixus Clinic 内で完結します
+              </div>
             </div>
           )}
 
@@ -713,7 +788,7 @@ export function MatchingOverlay({ persona }: { persona: Persona }) {
                   <div style={{ fontSize: '0.88rem', fontWeight: 900 }}>{m.doctor}</div>
                   <div style={{ fontSize: '0.58rem', fontWeight: 700, color: connected ? 'var(--mx-success)' : 'var(--mx-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
                     <span style={{ width: '0.45rem', height: '0.45rem', borderRadius: 999, background: connected ? 'var(--mx-success)' : '#d97706', display: 'inline-block' }} />
-                    {connected ? 'モニターに合流中（オンライン）' : stage >= 6 ? 'モニターに招待しています…' : 'オンライン待機中'}
+                    {connected ? 'モニターに合流中（オンライン）' : stage >= matchedAt + 1 ? 'モニターに招待しています…' : 'オンライン待機中'}
                   </div>
                 </div>
               </div>
@@ -930,7 +1005,7 @@ export function PharmacyOverlay({ persona }: { persona: Persona }) {
 
 export function RevisitOverlay({ persona }: { persona: Persona }) {
   const stage = useStages([600, 700, 700, 900, 600, 600, 600, 800]);
-  const flowRows = [
+  const flowRows = persona.revisitFlow ?? [
     { label: '受付（セルフ受付・3秒）', sub: '再診は本人確認もワンタップ' },
     { label: '問診: 前回からの変化を確認', sub: '質問はAIが前回カルテから自動生成' },
     { label: 'AI下書き → 医師確認 → カルテ署名', sub: '' },

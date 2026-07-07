@@ -33,6 +33,8 @@ export type Persona = {
   rxItems: number;
   revisitSummary: string[];
   revisitPlan: string;
+  /** 再診画面「本日の流れ」の行（省略時は標準の再診フロー） */
+  revisitFlow?: Array<{ label: string; sub: string }>;
   /** 専門医マッチング (step5) */
   matching: {
     specialty: string;
@@ -41,7 +43,17 @@ export type Persona = {
     advice: string;
     /** マッチングの根拠（AI問診 / 診察所見 / 院内検査） */
     inputs: { intake: string; exam: string; test: string };
+    /**
+     * 多科にまたがる鑑別の候補。指定すると照合中に候補が1つずつ並び、
+     * matched の科へ収束する演出になる（腹部症状など「何科かわからない」主訴用）。
+     */
+    candidates?: Array<{ specialty: string; note: string; matched?: boolean }>;
   };
+  /**
+   * ステップ構成。'specialist-revisit' は「初診で検査・処方 → 改善せず →
+   * 1週間後の再診で専門医マッチング」の順になる。省略時は標準（初診でマッチング）。
+   */
+  journey?: 'standard' | 'specialist-revisit';
 };
 
 export const PERSONAS: Persona[] = [
@@ -202,6 +214,72 @@ export const PERSONAS: Persona[] = [
         exam: '心音・呼吸音に異常なし・浮腫なし',
         test: '血圧128/78・心電図 洞調律',
       },
+    },
+  },
+  {
+    id: 'aoi',
+    name: '鈴木 葵',
+    kana: 'スズキ アオイ',
+    age: 38,
+    role: '営業職',
+    complaint: 'つづく腹痛と吐き気',
+    color: '#c1666b',
+    colorDark: '#8e4247',
+    queueNo: 26,
+    journey: 'specialist-revisit',
+    intake: [
+      { who: 'dr', text: '今日はどのような症状がありますか？' },
+      { who: 'pt', text: '3日前からお腹が痛くて、吐き気もあります。食事もあまり取れていません' },
+      { who: 'dr', text: '下痢や発熱、血便はありますか？' },
+      { who: 'pt', text: 'どれもないです。ただ、ずっとムカムカしていて…' },
+    ],
+    intakeSummary: '主訴: 腹痛・悪心（3日前から持続）。食思不振あり。下痢・発熱・血便なし。',
+    chat: [
+      { who: 'dr', text: '3日前からの腹痛と吐き気ですね。おなかを診せてください。' },
+      { who: 'pt', text: 'はい。みぞおちのあたりが、ずっと重い感じです。' },
+      { who: 'dr', text: '押すと少し痛みますが、強い所見はありません。念のためエコーと血液検査をしておきましょう。' },
+      { who: 'pt', text: 'お願いします。仕事にも集中できなくて。' },
+      { who: 'dr', text: 'エコーは異常なしです。まず胃腸を整えるお薬で様子を見て、改善がなければ1週間以内に来てください。血液検査の詳しい結果はその時に一緒に確認します。' },
+    ],
+    soap: {
+      s: '3日前からの腹痛（心窩部優位）と悪心。食思不振あり。下痢・発熱・血便なし。',
+      o: '腹部平坦・軟。心窩部に軽度圧痛、反跳痛なし。腹部エコー: 明らかな異常なし。院内迅速血液検査: 炎症反応なし（ホルモン等の精密項目は外注）。',
+      a: '急性胃腸炎の疑い。現時点で緊急性を示す所見なし。',
+      p: '整腸剤・制吐薬を処方し経過観察。改善なければ1週間以内に再診。外注血液検査の結果は再診時に照合。',
+    },
+    rxCandidates: ['ビオフェルミン配合散（整腸剤）7日分', 'ドンペリドン錠10mg（制吐薬）頓用'],
+    labCandidates: ['腹部エコー検査', '血液検査（院内迅速＋外注精密）'],
+    points: 890,
+    yen: 2670,
+    rxItems: 2,
+    revisitSummary: [
+      '前回（7日前）: 急性胃腸炎の疑い。整腸剤・制吐薬を処方。',
+      '検査: 腹部エコー異常なし。外注血液検査で甲状腺ホルモンに異常値（TSH低値・FT4高値）。',
+      '経過: 腹痛・吐き気は改善せず。体重−2kg、動悸を新たに自覚。',
+    ],
+    revisitPlan: '症状が持続 — 検査結果と経過をもとに、専門医マッチングを起動します。',
+    revisitFlow: [
+      { label: '受付（セルフ受付・3秒）', sub: '再診は本人確認もワンタップ' },
+      { label: '問診: 症状が続いていることをAIが確認', sub: '「改善していない」を診察前に検出' },
+      { label: '前回の検査結果を自動照合 → 異常値を検出', sub: '外注血液検査: 甲状腺ホルモンに異常' },
+      { label: '専門医マッチングを起動', sub: '提携医師プールから最適な専門医を照合 →' },
+    ],
+    matching: {
+      specialty: '内分泌内科',
+      doctor: '三宅医師',
+      reason: '血液検査の甲状腺ホルモン異常（TSH低値・FT4高値）に、症状の持続・頻脈・体重減少を総合し、内分泌疾患の評価を最優先',
+      advice: '検査結果を拝見しました。吐き気や腹痛は、甲状腺ホルモンが出すぎる病気（甲状腺機能亢進症）でも起こります。数値と症状はその可能性を示しています。追加の採血と甲状腺エコーを、このまま当院で手配しますね。胃腸のお薬だけで様子を見る段階は、今日で終わりにしましょう。',
+      inputs: {
+        intake: '腹痛・吐き気が1週間以上持続・体重−2kg・動悸',
+        exam: '腹部所見は軽度で限局せず／脈拍102・整',
+        test: '腹部エコー異常なし／TSH低値・FT4高値（外注血液検査）',
+      },
+      candidates: [
+        { specialty: '消化器内科', note: 'エコー異常なし・症状持続で単独では説明困難' },
+        { specialty: '婦人科', note: '月経周期との関連なし' },
+        { specialty: '脳神経内科', note: '神経学的所見なし' },
+        { specialty: '内分泌内科', note: 'TSH低値・FT4高値 ＋ 頻脈・体重減少', matched: true },
+      ],
     },
   },
 ];
@@ -365,6 +443,59 @@ export const STEPS: StepDef[] = [
     flows: ['kiosk', 'exam', 'billing', 'pharmacy'],
   },
 ];
+
+/**
+ * specialist-revisit ジャーニー:
+ * 初診（診察・検査・整腸剤の処方）ではいったん経過観察になり、
+ * 改善せず1週間後に再診 → 検査結果と経過から専門医マッチングが起動する。
+ * ステップ数は標準と同じ10（順序と文言だけ差し替える）。
+ */
+const SPECIALIST_REVISIT_STEPS: StepDef[] = [
+  STEPS[0],
+  STEPS[1],
+  STEPS[2],
+  STEPS[3],
+  {
+    ...STEPS[4],
+    title: '医師は、あなたと話すだけ',
+    desc: 'AIが診察の会話を聞き取り、SOAPカルテと処方候補を下書き。この日はエコーと血液検査を行い、まず胃腸を整えるお薬で様子を見ることになりました。',
+    note: 'AIでSOAP自動生成 × 院内検査（結果は自動でカルテへ）',
+  },
+  {
+    ...STEPS[6],
+    id: 5,
+  },
+  {
+    ...STEPS[7],
+    id: 6,
+  },
+  {
+    ...STEPS[8],
+    id: 7,
+    shortTitle: '再診',
+    title: '「治っていない」を、見逃さない',
+    desc: 'お薬で様子を見ても、腹痛と吐き気が続いています。AIが前回のカルテと検査結果を自動で照合し、「治療がうまくいっていない」ことを診察の前に医師へ知らせます。',
+    note: 'AI過去カルテ要約 × 検査結果の自動照合',
+    hud: { label: '前回検査の照合', value: '自動（診察前に完了）' },
+    interstitial: '─ 1週間後・症状がつづく ─',
+  },
+  {
+    ...STEPS[5],
+    id: 8,
+    shortTitle: '専門医マッチング',
+    title: 'その原因が何科かは、探さなくていい',
+    desc: '腹部の症状の原因は、消化器・内分泌・脳神経・婦人科…と複数の科にまたがります。Medixus は検査結果と経過から可能性を絞り込み、提携医療法人の医師プールにいる最適な専門医を、診察室のモニターへその場で呼びます。病院を探し回る必要はありません。',
+    note: '多科の鑑別 × 医師プール — Medixus Clinic 内で完結',
+    hud: { label: '専門医にかかるまで', value: '0日・0院（院内で完結）' },
+    walk: undefined,
+  },
+  STEPS[9],
+];
+
+/** ペルソナのジャーニーに応じたステップ列を返す */
+export function stepsForPersona(persona: Persona | null): StepDef[] {
+  return persona?.journey === 'specialist-revisit' ? SPECIALIST_REVISIT_STEPS : STEPS;
+}
 
 /** フィナーレ（院長ビュー）KPI — 合成値 */
 export const FINALE_KPIS = [

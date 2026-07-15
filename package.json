@@ -7,7 +7,8 @@
     "dev": "vite --port 4200",
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --port 4200"
+    "preview": "vite preview --port 4200",
+    "build:corporate": "tsc --noEmit && VITE_HOME_HREF=/ vite build --config vite.corporate.config.ts"
   },
   "dependencies": {
     "react": "^19.1.0",

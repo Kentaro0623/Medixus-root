@@ -33,6 +33,9 @@ import './test-drive.css';
 
 type Cam = { x: number; y: number; scale: number };
 
+/** 戻り先トップ。単体サイトではLP(#/)、コーポレート同梱ビルドでは / を指す */
+const HOME_HREF: string = import.meta.env.VITE_HOME_HREF ?? '#/';
+
 const WALK_SPEED = 300; // world units / sec
 
 function segLengths(path: Vec[]): { lens: number[]; total: number } {
@@ -357,7 +360,7 @@ export default function TestDrive() {
 
       {/* ── top chrome ── */}
       <div className="td-topbar">
-        <a className="td-logo" href="#/" aria-label="Medixus Clinic トップへ">
+        <a className="td-logo" href={HOME_HREF} aria-label="トップページへ">
           <Wordmark size="sm" />
           <span className="td-logo-tag">TEST DRIVE</span>
         </a>
@@ -388,8 +391,8 @@ export default function TestDrive() {
           <button onClick={restart}>
             <span className="td-menu-step">↺</span>最初からやり直す
           </button>
-          <button onClick={() => { window.location.hash = '#/'; }}>
-            <span className="td-menu-step">←</span>Medixus Clinic トップへ
+          <button onClick={() => { window.location.href = HOME_HREF; }}>
+            <span className="td-menu-step">←</span>トップページへ
           </button>
         </div>
       )}
@@ -512,8 +515,8 @@ export default function TestDrive() {
             ))}
           </div>
           <div className="td-finale-ctas">
-            <a className="td-cta-primary" href="#/">
-              Medixus Clinic について <span aria-hidden>→</span>
+            <a className="td-cta-primary" href={HOME_HREF}>
+              Medixus について <span aria-hidden>→</span>
             </a>
             <button className="td-cta-ghost" onClick={restart}>
               ↺ 別の患者でもう一度

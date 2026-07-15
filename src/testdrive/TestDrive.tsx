@@ -28,7 +28,7 @@ import {
   PharmacyOverlay,
   RevisitOverlay,
 } from './overlays';
-import { Wordmark } from '../components/Wordmark';
+import logoH from '../assets/medixus-logo-h.png';
 import './test-drive.css';
 
 type Cam = { x: number; y: number; scale: number };
@@ -361,7 +361,7 @@ export default function TestDrive() {
       {/* ── top chrome ── */}
       <div className="td-topbar">
         <a className="td-logo" href={HOME_HREF} aria-label="トップページへ">
-          <Wordmark size="sm" />
+          <img className="td-logo-img" src={logoH} alt="Medixus" />
           <span className="td-logo-tag">TEST DRIVE</span>
         </a>
         <div className="td-dots" role="tablist" aria-label="ステップ">

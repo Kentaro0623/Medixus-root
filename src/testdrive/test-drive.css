@@ -75,6 +75,12 @@
   text-decoration: none;
 }
 
+.td-logo-img {
+  height: 24px;
+  width: auto;
+  display: block;
+}
+
 .td-logo-tag {
   border: 1px solid var(--mx-border);
   border-radius: 999px;

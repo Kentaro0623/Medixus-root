@@ -5,19 +5,19 @@
 :root {
   /* Surfaces */
   --mx-white: #ffffff;
-  --mx-off-white: #f8f7f3;
-  --mx-surface: #f0eee8;
+  --mx-off-white: #f6f9fd;
+  --mx-surface: #eaf1f9;
 
   /* Text */
-  --mx-ink: #202827;
-  --mx-muted: #586462;
-  --mx-subtle: #8a928f;
+  --mx-ink: #14264a;
+  --mx-muted: #69768f;
+  --mx-subtle: #9aa6bb;
 
   /* Accent — deep teal */
-  --mx-teal: #0f766e;
-  --mx-teal-dark: #115e59;
-  --mx-teal-light: #f0fdfa;
-  --mx-teal-border: #ccfbf1;
+  --mx-teal: #2070cf;
+  --mx-teal-dark: #18579f;
+  --mx-teal-light: #e7f1fc;
+  --mx-teal-border: #c5dcf5;
 
   /* Semantic */
   --mx-warning: #d97706;
@@ -27,8 +27,8 @@
   --mx-danger: #dc2626;
 
   /* Borders */
-  --mx-border: #dfddd4;
-  --mx-border-light: #ece9e1;
+  --mx-border: #d5dfec;
+  --mx-border-light: #e4ebf4;
 
   --mx-radius: 0.5rem;
 }

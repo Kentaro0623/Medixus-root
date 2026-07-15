@@ -39,8 +39,8 @@ export type Persona = {
   revisitFlow?: Array<{ label: string; sub: string }>;
   /** 再診ステップの幕間テキスト（省略時はステップ定義のまま） */
   revisitInterstitial?: string;
-  /** 専門医マッチング (step5) */
-  matching: {
+  /** 専門医マッチング（specialist-revisit のみ使用。simple では省略可） */
+  matching?: {
     specialty: string;
     doctor: string;
     reason: string;
@@ -54,10 +54,12 @@ export type Persona = {
     candidates?: Array<{ specialty: string; note: string; matched?: boolean }>;
   };
   /**
-   * ステップ構成。'specialist-revisit' は「初診で検査・処方 → 改善せず →
-   * 1週間後の再診で専門医マッチング」の順になる。省略時は標準（初診でマッチング）。
+   * ステップ構成。
+   * - 'simple': 専門医マッチングなしで完結（軽症・定期通院の等身大ストーリー）
+   * - 'specialist-revisit': 初期治療で改善せず、再診時に専門医マッチングが起動
+   * 専門医マッチングは「全員に使う」のではなく、必要な患者にだけ発動する。
    */
-  journey?: 'standard' | 'specialist-revisit';
+  journey?: 'simple' | 'specialist-revisit';
 };
 
 export const PERSONAS: Persona[] = [
@@ -84,7 +86,7 @@ export const PERSONAS: Persona[] = [
       { who: 'pt', text: 'はい。仕事をどれくらい休むことになるかも知りたくて。' },
       { who: 'dr', text: '結果が出ました。インフルエンザA型、陽性です。抗インフルエンザ薬を出しますね。' },
       { who: 'pt', text: 'せきが強いのが少し心配です。昔、喘息だったので。' },
-      { who: 'dr', text: '大事な点ですね。呼吸器の専門の先生にも、この場で一緒に確認してもらいましょう。' },
+      { who: 'dr', text: '大事な情報ですね。念のため発作時用の吸入薬も出しておきます。せきが強くなったり息苦しさが出たら、すぐ来てください。' },
     ],
     soap: {
       s: '昨夜からの発熱（自宅38.9℃）・関節痛・咳嗽。職場でインフルエンザ流行。小児喘息の既往（現在治療なし）。',
@@ -92,29 +94,19 @@ export const PERSONAS: Persona[] = [
       a: 'インフルエンザA型。喘息既往があり、気道症状の増悪に留意。',
       p: '抗インフルエンザ薬・解熱鎮痛薬を処方。自宅療養と出勤再開の目安を説明。咳の増悪・呼吸苦があれば早期再診。',
     },
-    rxCandidates: ['ゾフルーザ錠20mg（抗インフルエンザ薬）', 'カロナール錠500mg 頓用'],
+    rxCandidates: ['ゾフルーザ錠20mg（抗インフルエンザ薬）', 'カロナール錠500mg 頓用', 'サルタノール吸入（発作時用）'],
     labCandidates: ['インフルエンザ迅速抗原検査'],
-    points: 720,
-    yen: 2160,
-    rxItems: 2,
+    points: 840,
+    yen: 2520,
+    rxItems: 3,
     revisitSummary: [
       '前回（7日前）: インフルエンザA型。抗インフルエンザ薬・解熱鎮痛薬を処方。',
       '経過: 発熱は2日で解熱。咳も改善し、喘鳴・呼吸苦の出現なし。',
-      '呼吸器内科の申し送り: 喘息の再燃なし — 発作時用の吸入薬は未使用のまま経過良好。',
+      '喘息の再燃なし — 発作時用の吸入薬は未使用のまま経過良好。',
     ],
     revisitPlan: '治癒を確認。出勤再開OK。喘息症状が出たときのみ早めの受診を指導。',
     revisitInterstitial: '─ 1週間後・治りぐあいの確認 ─',
-    matching: {
-      specialty: '呼吸器内科',
-      doctor: '高橋医師',
-      reason: '喘息の既往があるインフルエンザ。気道症状が悪化しやすく、専門医の初期評価を推奨',
-      advice: '肺の音と検査結果を確認しました。いまは喘息の再燃を示す所見はありません。ただ、せきが強くなる・息苦しい・ゼーゼーする、が出たらすぐ再診してください。念のため発作時用の吸入薬を追加しておきますね。',
-      inputs: {
-        intake: '発熱38.9℃・関節痛・咳嗽／小児喘息の既往',
-        exam: '肺音清・喘鳴なし・SpO2 98%',
-        test: 'インフルエンザ迅速抗原: A型陽性',
-      },
-    },
+    journey: 'simple',
   },
   {
     id: 'misaki',
@@ -123,7 +115,7 @@ export const PERSONAS: Persona[] = [
     age: 34,
     role: 'デザイナー',
     complaint: '2週間つづく頭痛',
-    tagline: '「怖い病気かも」の不安に、その場で答え',
+    tagline: '治らない頭痛に、専門医の答えを',
     color: '#d97757',
     colorDark: '#a44f35',
     queueNo: 24,
@@ -139,7 +131,7 @@ export const PERSONAS: Persona[] = [
       { who: 'pt', text: '後頭部から首にかけて、締め付けられる感じです。夕方がつらくて。' },
       { who: 'dr', text: 'お仕事はPC作業が長いですか？睡眠はとれていますか？' },
       { who: 'pt', text: '納期前で1日中PCの前に。それに、スマホで調べると怖い病気ばかり出てきて、不安で…' },
-      { who: 'dr', text: '診察では危険なタイプの頭痛のサインはありません。その不安ごと、脳の専門の先生にこの場で一緒に確認してもらいましょう。' },
+      { who: 'dr', text: '診察では危険なタイプの頭痛のサインはありません。まずはお薬と生活の工夫で2週間様子を見ましょう。もし良くならなければ、脳の専門の先生に一緒に診てもらえますから、安心してください。' },
     ],
     soap: {
       s: '約2週間前から後頭部〜頸部の締め付けられるような頭痛。夕方に増悪。長時間のPC作業、睡眠5時間程度。',
@@ -153,21 +145,28 @@ export const PERSONAS: Persona[] = [
     yen: 1410,
     rxItems: 2,
     revisitSummary: [
-      '前回（14日前）: 緊張型頭痛。脳神経内科（マッチング）でred flag除外済み。',
-      '処方: ロキソプロフェン錠 頓用 — 使用は週2回程度まで減少。',
-      '経過: 休憩・ストレッチ導入後、頭痛の頻度・強さともに改善傾向。',
+      '前回（14日前）: 緊張型頭痛の疑い。頓用薬・生活指導で経過観察。',
+      '経過: 頭痛の頻度・強さは改善乏しく、頓用薬の使用が週4回に増加。',
+      '問診: 「重い病気ではないか」という不安の訴えが強い。',
     ],
-    revisitPlan: '頻度・強度ともに改善。頓用継続とし、セルフケアを継続指導。',
-    revisitInterstitial: '─ 2週間後・経過確認 ─',
+    revisitPlan: '初期治療で改善が乏しい — 前回カルテと経過をもとに、専門医マッチングを起動します。',
+    revisitFlow: [
+      { label: '受付（セルフ受付・3秒）', sub: '再診は本人確認もワンタップ' },
+      { label: '問診: 改善が乏しいことをAIが確認', sub: '「治っていない」を診察前に検出' },
+      { label: '前回カルテと経過を自動照合 → 治療反応性を評価', sub: '頓用薬の使用回数が増加' },
+      { label: '専門医マッチングを起動', sub: '提携医師プールから頭痛の専門医を照合 →' },
+    ],
+    revisitInterstitial: '─ 2週間後・頭痛がつづく ─',
+    journey: 'specialist-revisit',
     matching: {
       specialty: '脳神経内科',
       doctor: '藤井医師',
-      reason: '2週間持続する頭痛。危険な頭痛（red flag）の専門的な除外と、患者の不安の解消を推奨',
-      advice: '所見を拝見しました。くも膜下出血や脳腫瘍を疑うサイン（red flag）はなく、いますぐ画像検査が必要な状態ではありません。緊張型頭痛として、頓用薬と休憩・睡眠の調整で良くなる見込みです。急な激しい頭痛や見えにくさが出たら、その時はすぐに。経過は私も一緒に見ていきますから、安心してください。',
+      reason: '2週間の初期治療で改善が乏しい頭痛。危険な頭痛（red flag）の再評価と治療方針の見直しに、専門医の評価を要する',
+      advice: '経過を拝見しました。いまも危険なサイン（red flag）はありません。ただ改善が乏しいので、緊張型だけでなく片頭痛の要素を考えて、予防を含めたお薬の調整を提案します。必要なら画像検査も、このまま当院で手配できます。もう、一人で調べて不安にならなくて大丈夫ですよ。',
       inputs: {
-        intake: '頭痛が2週間持続・夕方に増悪・本人が重い病気を心配',
-        exam: '神経学的異常なし・項部/僧帽筋に圧痛',
-        test: '血圧118/74・脈拍68整',
+        intake: '頭痛が4週間持続・頓用薬の使用が増加・強い不安',
+        exam: '神経学的異常なし・項部/僧帽筋の圧痛が持続',
+        test: '血圧・脈拍は正常域／前回からのバイタル変化なし',
       },
     },
   },
@@ -214,17 +213,7 @@ export const PERSONAS: Persona[] = [
     ],
     revisitPlan: '血圧は30日間安定（アプリ自動集計）。予定どおり採血を実施し、現行処方を継続。',
     revisitInterstitial: '─ 30日後・定期受診 ─',
-    matching: {
-      specialty: '循環器内科',
-      doctor: '中村医師',
-      reason: '年1回の専門医レビューの時期。30日分の血圧記録と心電図の確認を推奨',
-      advice: 'アプリの血圧記録30日分と心電図を確認しました。コントロールは非常に良好、この調子です。現行のお薬の継続で問題ありません。次回の採血結果も自動で共有されるので、私も一緒に見ておきますね。',
-      inputs: {
-        intake: '自覚症状なし・服薬遵守良好（アプリ記録）',
-        exam: '心音・呼吸音に異常なし・浮腫なし',
-        test: '血圧128/78（30日平均も安定）・心電図 洞調律',
-      },
-    },
+    journey: 'simple',
   },
   {
     id: 'aoi',
@@ -457,50 +446,100 @@ export const STEPS: StepDef[] = [
 
 /**
  * specialist-revisit ジャーニー:
- * 初診（診察・検査・整腸剤の処方）ではいったん経過観察になり、
- * 改善せず1週間後に再診 → 検査結果と経過から専門医マッチングが起動する。
- * ステップ数は標準と同じ10（順序と文言だけ差し替える）。
+ * 初診（診察・検査・処方）ではいったん経過観察になり、改善せず再診 →
+ * 経過と検査結果から専門医マッチングが起動する。
+ * 専門医マッチングは全員には使わない — 「治らない」「専門医でないと判断が
+ * 難しい」症例にだけ発動するのが Medixus の設計思想。
+ * ステップ数は10（順序と文言をペルソナごとに差し替える）。
  */
-const SPECIALIST_REVISIT_STEPS: StepDef[] = [
+type RevisitJourneyCopy = {
+  step4Desc: string;
+  step4Note: string;
+  revisitTitle: string;
+  revisitDesc: string;
+  interstitial: string;
+  matchTitle: string;
+  matchDesc: string;
+  matchNote: string;
+};
+
+function specialistRevisitSteps(c: RevisitJourneyCopy): StepDef[] {
+  return [
+    STEPS[0],
+    STEPS[1],
+    STEPS[2],
+    STEPS[3],
+    {
+      ...STEPS[4],
+      title: '医師は、あなたと話すだけ',
+      desc: c.step4Desc,
+      note: c.step4Note,
+    },
+    { ...STEPS[6], id: 5 },
+    { ...STEPS[7], id: 6 },
+    {
+      ...STEPS[8],
+      id: 7,
+      shortTitle: '再診',
+      title: c.revisitTitle,
+      desc: c.revisitDesc,
+      note: 'AI過去カルテ要約 × 経過・検査結果の自動照合',
+      hud: { label: '前回カルテの照合', value: '自動（診察前に完了）' },
+      interstitial: c.interstitial,
+    },
+    {
+      ...STEPS[5],
+      id: 8,
+      shortTitle: '専門医マッチング',
+      title: c.matchTitle,
+      desc: c.matchDesc,
+      note: c.matchNote,
+      hud: { label: '専門医にかかるまで', value: '0日・0院（院内で完結）' },
+      walk: undefined,
+    },
+    STEPS[9],
+  ];
+}
+
+const AOI_STEPS = specialistRevisitSteps({
+  step4Desc:
+    'AIが診察の会話を聞き取り、SOAPカルテと処方候補を下書き。この日はエコーと血液検査を行い、まず胃腸を整えるお薬で様子を見ることになりました。',
+  step4Note: 'AIでSOAP自動生成 × 院内検査（結果は自動でカルテへ）',
+  revisitTitle: '「治っていない」を、見逃さない',
+  revisitDesc:
+    'お薬で様子を見ても、腹痛と吐き気が続いています。AIが前回のカルテと検査結果を自動で照合し、「治療がうまくいっていない」ことを診察の前に医師へ知らせます。',
+  interstitial: '─ 1週間後・症状がつづく ─',
+  matchTitle: 'その原因が何科かは、探さなくていい',
+  matchDesc:
+    '腹部の症状の原因は、消化器・内分泌・脳神経・婦人科…と複数の科にまたがります。Medixus は検査結果と経過から可能性を絞り込み、提携医療法人の医師プールにいる最適な専門医を、診察室のモニターへその場で呼びます。病院を探し回る必要はありません。',
+  matchNote: '多科の鑑別 × 医師プール — Medixus Clinic 内で完結',
+});
+
+const MISAKI_STEPS = specialistRevisitSteps({
+  step4Desc:
+    'AIが診察の会話を聞き取り、SOAPカルテを下書き。危険なサインがないことを確認したうえで、まずはお薬と生活の工夫で2週間様子を見る方針になりました。',
+  step4Note: 'AIでSOAP自動生成（医師確認必須）',
+  revisitTitle: '「治っていない」に、次の一手を',
+  revisitDesc:
+    '2週間たっても、頭痛は良くなっていません。AIが前回のカルテと経過を照合し、「初期治療で改善が乏しい」ことを診察の前に医師へ知らせます。ここではじめて、専門医の出番です。',
+  interstitial: '─ 2週間後・頭痛がつづく ─',
+  matchTitle: '必要になった、その時だけ。',
+  matchDesc:
+    'Medixusは、最初から何でも専門医に送りません。かかりつけ医で治る人はそのまま完結し、治らない・判断が難しい症例だけ、提携医療法人の専門医が診察室のモニターに合流します。医療資源は大切に、でも必要な人には最短で。',
+  matchNote: '「治らない」にだけ発動 — 適切な専門医アクセス',
+});
+
+/** simple ジャーニー: 専門医マッチングなしで完結する9ステップ */
+const SIMPLE_STEPS: StepDef[] = [
   STEPS[0],
   STEPS[1],
   STEPS[2],
   STEPS[3],
-  {
-    ...STEPS[4],
-    title: '医師は、あなたと話すだけ',
-    desc: 'AIが診察の会話を聞き取り、SOAPカルテと処方候補を下書き。この日はエコーと血液検査を行い、まず胃腸を整えるお薬で様子を見ることになりました。',
-    note: 'AIでSOAP自動生成 × 院内検査（結果は自動でカルテへ）',
-  },
-  {
-    ...STEPS[6],
-    id: 5,
-  },
-  {
-    ...STEPS[7],
-    id: 6,
-  },
-  {
-    ...STEPS[8],
-    id: 7,
-    shortTitle: '再診',
-    title: '「治っていない」を、見逃さない',
-    desc: 'お薬で様子を見ても、腹痛と吐き気が続いています。AIが前回のカルテと検査結果を自動で照合し、「治療がうまくいっていない」ことを診察の前に医師へ知らせます。',
-    note: 'AI過去カルテ要約 × 検査結果の自動照合',
-    hud: { label: '前回検査の照合', value: '自動（診察前に完了）' },
-    interstitial: '─ 1週間後・症状がつづく ─',
-  },
-  {
-    ...STEPS[5],
-    id: 8,
-    shortTitle: '専門医マッチング',
-    title: 'その原因が何科かは、探さなくていい',
-    desc: '腹部の症状の原因は、消化器・内分泌・脳神経・婦人科…と複数の科にまたがります。Medixus は検査結果と経過から可能性を絞り込み、提携医療法人の医師プールにいる最適な専門医を、診察室のモニターへその場で呼びます。病院を探し回る必要はありません。',
-    note: '多科の鑑別 × 医師プール — Medixus Clinic 内で完結',
-    hud: { label: '専門医にかかるまで', value: '0日・0院（院内で完結）' },
-    walk: undefined,
-  },
-  STEPS[9],
+  STEPS[4],
+  { ...STEPS[6], id: 5 },
+  { ...STEPS[7], id: 6 },
+  { ...STEPS[8], id: 7 },
+  { ...STEPS[9], id: 8 },
 ];
 
 /** ペルソナのジャーニーに応じたステップ列を返す（identityはペルソナ単位で安定） */
@@ -509,10 +548,21 @@ export function stepsForPersona(persona: Persona | null): StepDef[] {
   if (!persona) return STEPS;
   const cached = personaStepsCache.get(persona.id);
   if (cached) return cached;
-  const base = persona.journey === 'specialist-revisit' ? SPECIALIST_REVISIT_STEPS : STEPS;
+  let base: StepDef[];
+  if (persona.journey === 'specialist-revisit') {
+    base = persona.id === 'misaki' ? MISAKI_STEPS : AOI_STEPS;
+  } else if (persona.journey === 'simple') {
+    base = SIMPLE_STEPS;
+  } else {
+    base = STEPS;
+  }
   const steps = persona.revisitInterstitial
-    ? base.map((s) =>
-        s.overlay === 'revisit' ? { ...s, interstitial: persona.revisitInterstitial } : s,
+    ? base.map((st) =>
+        st.overlay === 'revisit' && !st.interstitial
+          ? { ...st, interstitial: persona.revisitInterstitial }
+          : st.overlay === 'revisit'
+            ? { ...st, interstitial: persona.revisitInterstitial ?? st.interstitial }
+            : st,
       )
     : base;
   personaStepsCache.set(persona.id, steps);

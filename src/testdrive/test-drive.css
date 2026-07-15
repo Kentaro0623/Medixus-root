@@ -8,7 +8,7 @@
   inset: 0;
   z-index: 100;
   overflow: hidden;
-  background: #eef2ee;
+  background: #edf2f9;
   color: var(--mx-ink);
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "YuGothic", "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -20,7 +20,7 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(120% 90% at 50% -10%, #e7f4ef 0%, #eef2ee 46%, #e3e9e3 100%);
+    radial-gradient(120% 90% at 50% -10%, #e7f4ef 0%, #edf2f9 46%, #e3e9e3 100%);
 }
 
 /* ── Camera viewport ── */
@@ -115,7 +115,7 @@
 .td-dot.active {
   background: var(--mx-teal);
   transform: scale(1.45);
-  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.14);
+  box-shadow: 0 0 0 4px rgba(32, 112, 207, 0.14);
 }
 
 .td-menu-btn {
@@ -147,7 +147,7 @@
   background: rgba(255, 255, 255, 0.97);
   border: 1px solid var(--mx-border);
   border-radius: 0.9rem;
-  box-shadow: 0 1.4rem 3rem rgba(16, 34, 29, 0.18);
+  box-shadow: 0 1.4rem 3rem rgba(20, 38, 74, 0.18);
   padding: 0.5rem;
   animation: td-pop 0.22s cubic-bezier(0.2, 1.2, 0.4, 1);
 }
@@ -196,7 +196,7 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(223, 221, 212, 0.9);
   border-radius: 1rem;
-  box-shadow: 0 1.2rem 2.6rem rgba(16, 34, 29, 0.16);
+  box-shadow: 0 1.2rem 2.6rem rgba(20, 38, 74, 0.16);
   padding: 1rem 1.1rem 1.05rem;
   opacity: 0;
   transform: translateY(0.8rem);
@@ -270,7 +270,7 @@
   padding: 0.62rem 1.1rem;
   cursor: pointer;
   transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
-  box-shadow: 0 0.5rem 1.2rem rgba(16, 34, 29, 0.22);
+  box-shadow: 0 0.5rem 1.2rem rgba(20, 38, 74, 0.22);
 }
 
 .td-next-btn:hover {
@@ -339,13 +339,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(17, 94, 89, 0.94);
-  color: #ecfeff;
+  background: rgba(24, 87, 159, 0.94);
+  color: #eaf4ff;
   border-radius: 999px;
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.4rem 0.85rem;
-  box-shadow: 0 0.6rem 1.6rem rgba(17, 94, 89, 0.35);
+  box-shadow: 0 0.6rem 1.6rem rgba(24, 87, 159, 0.35);
   animation: td-pop 0.3s cubic-bezier(0.2, 1.2, 0.4, 1);
 }
 
@@ -436,7 +436,7 @@
 .td-device {
   pointer-events: auto;
   animation: td-device-in 0.65s cubic-bezier(0.2, 1, 0.3, 1);
-  filter: drop-shadow(0 2.2rem 3.4rem rgba(16, 34, 29, 0.3));
+  filter: drop-shadow(0 2.2rem 3.4rem rgba(20, 38, 74, 0.3));
 }
 
 @keyframes td-device-in {
@@ -500,7 +500,7 @@
 /* Kiosk frame */
 .td-kiosk {
   width: min(24rem, 88vw);
-  background: #17211f;
+  background: #172038;
   border-radius: 1.3rem;
   padding: 0.7rem;
 }
@@ -517,7 +517,7 @@
 /* Wall board frame */
 .td-board {
   width: min(34rem, 92vw);
-  background: #17211f;
+  background: #172038;
   border-radius: 1.1rem;
   padding: 0.65rem;
 }
@@ -531,7 +531,7 @@
 /* Doctor monitor frame */
 .td-monitor {
   width: min(40rem, 94vw);
-  background: #17211f;
+  background: #172038;
   border-radius: 1rem;
   padding: 0.6rem 0.6rem 1rem;
 }
@@ -547,7 +547,7 @@
   width: 7rem;
   height: 0.35rem;
   border-radius: 999px;
-  background: #2c3634;
+  background: #2b3750;
 }
 
 /* ── Shared screen chrome ── */
@@ -680,12 +680,12 @@
 
 .td-persona:hover {
   transform: translateY(-4px);
-  box-shadow: 0 1.2rem 2.4rem rgba(16, 34, 29, 0.14);
+  box-shadow: 0 1.2rem 2.4rem rgba(20, 38, 74, 0.14);
 }
 
 .td-persona.selected {
   border-color: var(--mx-teal);
-  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.14), 0 1.2rem 2.4rem rgba(16, 34, 29, 0.14);
+  box-shadow: 0 0 0 4px rgba(32, 112, 207, 0.14), 0 1.2rem 2.4rem rgba(20, 38, 74, 0.14);
 }
 
 .td-persona .avatar {
@@ -762,7 +762,7 @@
   font-weight: 800;
   padding: 0.85rem 2.4rem;
   cursor: pointer;
-  box-shadow: 0 0.9rem 2rem rgba(16, 34, 29, 0.24);
+  box-shadow: 0 0.9rem 2rem rgba(20, 38, 74, 0.24);
   transition: transform 0.15s, background 0.15s, opacity 0.2s;
 }
 
@@ -836,7 +836,7 @@
   border: 1px solid var(--mx-border-light);
   border-radius: 1rem;
   padding: 0.95rem 1.05rem;
-  box-shadow: 0 0.8rem 1.8rem rgba(16, 34, 29, 0.08);
+  box-shadow: 0 0.8rem 1.8rem rgba(20, 38, 74, 0.08);
   animation: td-rise 0.7s cubic-bezier(0.2, 1, 0.3, 1) backwards;
 }
 
@@ -896,7 +896,7 @@
   padding: 0.78rem 1.9rem;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: 0 0.9rem 2rem rgba(15, 118, 110, 0.3);
+  box-shadow: 0 0.9rem 2rem rgba(32, 112, 207, 0.3);
   transition: transform 0.15s, background 0.15s;
 }
 

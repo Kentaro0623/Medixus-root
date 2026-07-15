@@ -89,7 +89,7 @@ function CheckRow({ label, done, sub }: { label: string; done: boolean; sub?: st
           fontSize: '0.6rem',
           fontWeight: 900,
           color: '#fff',
-          background: done ? 'var(--mx-success)' : '#d7dbd4',
+          background: done ? 'var(--mx-success)' : '#d3dbe8',
           transition: 'background .3s',
           marginTop: '0.05rem',
         }}
@@ -126,9 +126,9 @@ function QRSvg({ seed, size = 96 }: { seed: number; size?: number }) {
   const u = size / n;
   const finder = (fx: number, fy: number) => (
     <g key={`${fx}-${fy}`}>
-      <rect x={fx * u} y={fy * u} width={7 * u} height={7 * u} fill="#10221d" />
+      <rect x={fx * u} y={fy * u} width={7 * u} height={7 * u} fill="#14264a" />
       <rect x={(fx + 1) * u} y={(fy + 1) * u} width={5 * u} height={5 * u} fill="#fff" />
-      <rect x={(fx + 2) * u} y={(fy + 2) * u} width={3 * u} height={3 * u} fill="#10221d" />
+      <rect x={(fx + 2) * u} y={(fy + 2) * u} width={3 * u} height={3 * u} fill="#14264a" />
     </g>
   );
   return (
@@ -137,7 +137,7 @@ function QRSvg({ seed, size = 96 }: { seed: number; size?: number }) {
       {cells.map((row, y) =>
         row.map((c, x) => {
           const inFinder = (x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12);
-          return c && !inFinder ? <rect key={`${x}-${y}`} x={x * u} y={y * u} width={u} height={u} fill="#10221d" /> : null;
+          return c && !inFinder ? <rect key={`${x}-${y}`} x={x * u} y={y * u} width={u} height={u} fill="#14264a" /> : null;
         }),
       )}
       {finder(0, 0)}
@@ -285,7 +285,7 @@ export function KioskOverlay({ persona }: { persona: Persona }) {
                       top: 0,
                       height: 3,
                       background: 'var(--mx-teal)',
-                      boxShadow: '0 0 10px rgba(15,118,110,0.8)',
+                      boxShadow: '0 0 10px rgba(32,112,207,0.8)',
                       animation: stage === 0 ? 'td-scanline 1.1s ease-in-out infinite alternate' : 'none',
                       opacity: stage === 0 ? 1 : 0,
                     }}
@@ -427,8 +427,8 @@ export function BoardOverlay({ persona }: { persona: Persona }) {
             transform: 'translateX(-50%)',
             width: 'max-content',
             maxWidth: '92%',
-            background: '#10221d',
-            color: '#ecfeff',
+            background: '#14264a',
+            color: '#eaf4ff',
             borderRadius: 999,
             fontSize: '0.68rem',
             fontWeight: 700,
@@ -436,7 +436,7 @@ export function BoardOverlay({ persona }: { persona: Persona }) {
             display: 'flex',
             alignItems: 'center',
             gap: '0.45rem',
-            boxShadow: '0 0.8rem 1.8rem rgba(16,34,29,0.35)',
+            boxShadow: '0 0.8rem 1.8rem rgba(20,38,74,0.35)',
             animation: 'td-pop 0.4s cubic-bezier(0.2,1.2,0.4,1)',
           }}
         >
@@ -591,7 +591,7 @@ export function MonitorOverlay({ persona }: { persona: Persona }) {
                       cursor: 'default',
                       color: '#fff',
                       background: confirmReady ? 'var(--mx-teal)' : '#cbd5d1',
-                      boxShadow: confirmReady ? '0 0 0 5px rgba(15,118,110,0.18)' : 'none',
+                      boxShadow: confirmReady ? '0 0 0 5px rgba(32,112,207,0.18)' : 'none',
                       transition: 'all .3s',
                     }}
                   >
@@ -618,7 +618,7 @@ export function MonitorOverlay({ persona }: { persona: Persona }) {
 /* ═══════════ STEP 5: 専門医マッチング ═══════════ */
 
 export function MatchingOverlay({ persona }: { persona: Persona }) {
-  const m = persona.matching;
+  const m = persona.matching!; // matching ステップは matching を持つペルソナでのみ表示される
   const cands = m.candidates ?? [];
   const hasCands = cands.length > 0;
   // 候補（多科鑑別）があるときは、照合中に候補が1つずつ並んでから1科へ収束する。
@@ -779,7 +779,7 @@ export function MatchingOverlay({ persona }: { persona: Persona }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                 <svg width={40} height={40} viewBox="-30 -34 60 64" aria-hidden style={{ flex: '0 0 auto' }}>
                   <circle cx={0} cy={2} r={27} fill="var(--mx-teal)" opacity={0.12} />
-                  <rect x={-13} y={-6} width={26} height={30} rx={13} fill="#e8f4f1" stroke="var(--mx-teal)" strokeWidth={2} />
+                  <rect x={-13} y={-6} width={26} height={30} rx={13} fill="#e9f1fb" stroke="var(--mx-teal)" strokeWidth={2} />
                   <circle cx={0} cy={-15} r={11} fill="#f3d9c3" />
                   <path d="M -11 -17 A 11 11 0 0 1 11 -17 L 11 -13.5 L -11 -13.5 Z" fill="#3f3a36" />
                 </svg>
@@ -799,10 +799,10 @@ export function MatchingOverlay({ persona }: { persona: Persona }) {
           )}
 
           {connected && (
-            <div style={{ background: '#10221d', color: '#f0fbf8', borderRadius: '0.8rem', padding: '0.7rem 0.8rem', animation: 'td-pop .35s cubic-bezier(0.2,1.2,0.4,1)' }}>
+            <div style={{ background: '#14264a', color: '#f0fbf8', borderRadius: '0.8rem', padding: '0.7rem 0.8rem', animation: 'td-pop .35s cubic-bezier(0.2,1.2,0.4,1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#9ff0e2' }}>● LIVE — {m.specialty} {m.doctor}</span>
-                <span style={{ color: '#9ff0e2' }}><Wave /></span>
+                <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#a9d4f8' }}>● LIVE — {m.specialty} {m.doctor}</span>
+                <span style={{ color: '#a9d4f8' }}><Wave /></span>
               </div>
               <div style={{ fontSize: '0.68rem', lineHeight: 1.7 }}>
                 <TypeText text={`「${m.advice}」`} active cps={26} />
@@ -956,7 +956,7 @@ export function PharmacyOverlay({ persona }: { persona: Persona }) {
                         fontSize: '0.58rem',
                         fontWeight: 900,
                         color: '#fff',
-                        background: i <= cur ? 'var(--mx-teal)' : '#d7dbd4',
+                        background: i <= cur ? 'var(--mx-teal)' : '#d3dbe8',
                         transition: 'background .35s',
                       }}
                     >
@@ -982,8 +982,8 @@ export function PharmacyOverlay({ persona }: { persona: Persona }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: '#10221d',
-                color: '#ecfeff',
+                background: '#14264a',
+                color: '#eaf4ff',
                 borderRadius: 999,
                 fontSize: '0.66rem',
                 fontWeight: 700,

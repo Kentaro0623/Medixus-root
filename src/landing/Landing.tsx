@@ -40,7 +40,7 @@ function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }
 const PILLARS = [
   {
     icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0f766e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2070cf" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7" rx="1.5" />
         <rect x="14" y="3" width="7" height="7" rx="1.5" />
         <rect x="3" y="14" width="7" height="7" rx="1.5" />
@@ -53,10 +53,10 @@ const PILLARS = [
   },
   {
     icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0f766e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2070cf" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
         <circle cx="12" cy="12" r="5" />
-        <circle cx="12" cy="12" r="1.6" fill="#0f766e" stroke="none" />
+        <circle cx="12" cy="12" r="1.6" fill="#2070cf" stroke="none" />
       </svg>
     ),
     title: '医師は、診察だけ。',
@@ -65,7 +65,7 @@ const PILLARS = [
   },
   {
     icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0f766e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2070cf" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 12l5 5L20 6" />
       </svg>
     ),

@@ -337,7 +337,7 @@ export default function TestDrive() {
               <g ref={avatarRef} style={{ pointerEvents: 'none' }}>
                 <g ref={avatarDirRef}>
                   <g className={walking ? 'td-avatar-bob' : undefined}>
-                    <ellipse cx={0} cy={20} rx={13} ry={5} fill="rgba(16,34,29,0.18)" />
+                    <ellipse cx={0} cy={20} rx={13} ry={5} fill="rgba(20,38,74,0.18)" />
                     <circle cx={0} cy={4} r={17} fill="#ffffff" opacity={0.55} />
                     <rect x={-10} y={-7} width={20} height={25} rx={10} fill={persona.color} stroke="#ffffff" strokeWidth={2.5} />
                     <circle cx={0} cy={-15} r={8.5} fill="#f3d9c3" stroke="#ffffff" strokeWidth={2} />
@@ -531,7 +531,7 @@ export default function TestDrive() {
             zIndex: 60,
             display: 'grid',
             placeItems: 'center',
-            background: 'rgba(250, 250, 247, 0.96)',
+            background: 'rgba(247, 250, 253, 0.96)',
             animation: 'td-pop 0.5s ease',
           }}
         >

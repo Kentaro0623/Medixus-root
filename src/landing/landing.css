@@ -165,7 +165,7 @@
   font-weight: 800;
   border-radius: 999px;
   padding: 0.85rem 1.9rem;
-  box-shadow: 0 1rem 2.2rem rgba(15, 118, 110, 0.32);
+  box-shadow: 0 1rem 2.2rem rgba(32, 112, 207, 0.32);
   transition: transform 0.15s, background 0.15s;
 }
 
@@ -220,8 +220,8 @@
   border: 1px solid var(--mx-border);
   border-radius: 1.4rem;
   overflow: hidden;
-  box-shadow: 0 2.4rem 5rem rgba(16, 34, 29, 0.16);
-  background: #eef2ee;
+  box-shadow: 0 2.4rem 5rem rgba(20, 38, 74, 0.16);
+  background: #edf2f9;
 }
 
 .lp-float {
@@ -232,7 +232,7 @@
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--mx-border-light);
   border-radius: 999px;
-  box-shadow: 0 0.8rem 1.8rem rgba(16, 34, 29, 0.16);
+  box-shadow: 0 0.8rem 1.8rem rgba(20, 38, 74, 0.16);
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--mx-muted);
@@ -308,7 +308,7 @@
   border: 1px solid var(--mx-border-light);
   border-radius: 1.2rem;
   padding: 1.6rem 1.5rem;
-  box-shadow: 0 1rem 2.4rem rgba(16, 34, 29, 0.06);
+  box-shadow: 0 1rem 2.4rem rgba(20, 38, 74, 0.06);
 }
 
 .lp-pillar .icon {
@@ -386,7 +386,7 @@
   color: #fff;
   font-size: 0.78rem;
   font-weight: 900;
-  box-shadow: 0 0.4rem 1rem rgba(15, 118, 110, 0.3);
+  box-shadow: 0 0.4rem 1rem rgba(32, 112, 207, 0.3);
 }
 
 .lp-journey-body h3 {
@@ -430,8 +430,8 @@
   width: 100%;
   border-radius: 1.4rem;
   overflow: hidden;
-  background: #10221d;
-  box-shadow: 0 2.4rem 5rem rgba(16, 34, 29, 0.22);
+  background: #14264a;
+  box-shadow: 0 2.4rem 5rem rgba(20, 38, 74, 0.22);
 }
 
 .lp-pov-img {
@@ -467,7 +467,7 @@
 .lp-pov-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(16, 34, 29, 0) 55%, rgba(16, 34, 29, 0.62));
+  background: linear-gradient(180deg, rgba(20, 38, 74, 0) 55%, rgba(20, 38, 74, 0.62));
   pointer-events: none;
 }
 
@@ -476,7 +476,7 @@
   left: 1.4rem;
   bottom: 1.3rem;
   right: 5rem;
-  color: #f2fbf8;
+  color: #f3f8fe;
   animation: td-rise 0.7s cubic-bezier(0.2, 1, 0.3, 1);
 }
 
@@ -485,8 +485,8 @@
   font-size: 0.66rem;
   font-weight: 800;
   letter-spacing: 0.12em;
-  color: #9ff0e2;
-  background: rgba(16, 34, 29, 0.55);
+  color: #a9d4f8;
+  background: rgba(20, 38, 74, 0.55);
   border: 1px solid rgba(159, 240, 226, 0.35);
   border-radius: 999px;
   padding: 0.24rem 0.7rem;
@@ -498,7 +498,7 @@
   margin-top: 0.5rem;
   font-size: clamp(1.05rem, 2.6vw, 1.55rem);
   font-weight: 900;
-  text-shadow: 0 2px 18px rgba(16, 34, 29, 0.55);
+  text-shadow: 0 2px 18px rgba(20, 38, 74, 0.55);
 }
 
 .lp-pov-dots {
@@ -552,7 +552,7 @@
   height: auto;
   border-radius: 1.3rem;
   border: 1px solid var(--mx-border-light);
-  box-shadow: 0 1.8rem 3.8rem rgba(16, 34, 29, 0.16);
+  box-shadow: 0 1.8rem 3.8rem rgba(20, 38, 74, 0.16);
 }
 
 .lp-match-photo figcaption {
@@ -575,7 +575,7 @@
   border: 1px solid var(--mx-border-light);
   border-radius: 1.1rem;
   padding: 1.1rem 1.2rem;
-  box-shadow: 0 0.8rem 2rem rgba(16, 34, 29, 0.06);
+  box-shadow: 0 0.8rem 2rem rgba(20, 38, 74, 0.06);
 }
 
 .lp-match-point .num {
@@ -612,9 +612,9 @@
   margin: 2.6rem auto 0;
   border-radius: 1.4rem;
   overflow: hidden;
-  background: linear-gradient(135deg, #10221d, #17453c);
-  color: #f2fbf8;
-  box-shadow: 0 1.8rem 4rem rgba(16, 34, 29, 0.24);
+  background: linear-gradient(135deg, #14264a, #17453c);
+  color: #f3f8fe;
+  box-shadow: 0 1.8rem 4rem rgba(20, 38, 74, 0.24);
 }
 
 @media (min-width: 760px) {
@@ -639,7 +639,7 @@
 .lp-doctor-copy .lp-eyebrow {
   background: rgba(159, 240, 226, 0.12);
   border-color: rgba(159, 240, 226, 0.3);
-  color: #9ff0e2;
+  color: #a9d4f8;
 }
 
 .lp-doctor-copy h3 {
@@ -658,8 +658,8 @@
 /* ── numbers band ── */
 .lp-numbers {
   margin-top: 5.5rem;
-  background: linear-gradient(135deg, #10221d, #123f36);
-  color: #ecfeff;
+  background: linear-gradient(135deg, #14264a, #123a66);
+  color: #eaf4ff;
   padding: 3.6rem 0;
 }
 
@@ -712,11 +712,11 @@
   max-width: 56rem;
   margin: 0 auto;
   background:
-    radial-gradient(80% 120% at 85% -10%, rgba(15, 118, 110, 0.12), transparent),
+    radial-gradient(80% 120% at 85% -10%, rgba(32, 112, 207, 0.12), transparent),
     #fff;
   border: 1px solid var(--mx-border);
   border-radius: 1.6rem;
-  box-shadow: 0 2rem 4.4rem rgba(16, 34, 29, 0.12);
+  box-shadow: 0 2rem 4.4rem rgba(20, 38, 74, 0.12);
   padding: 2.6rem 2rem;
   text-align: center;
   position: relative;

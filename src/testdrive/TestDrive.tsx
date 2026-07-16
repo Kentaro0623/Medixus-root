@@ -323,8 +323,10 @@ export default function TestDrive() {
         ? 'left'
         : 'right';
 
+  const isNight = Boolean(persona?.night);
+
   return (
-    <div className="td-root">
+    <div className={`td-root${isNight ? ' night' : ''}`}>
       <div className="td-backdrop" />
 
       {/* ── world ── */}
@@ -400,6 +402,14 @@ export default function TestDrive() {
       {/* ── HUD ── */}
       {persona && !showIntro && (
         <div className="td-hud">
+          {persona.clockIn && step >= 1 && (() => {
+            const revisitIdx = steps.findIndex((st) => st.overlay === 'revisit');
+            return revisitIdx === -1 || step < revisitIdx;
+          })() && (
+            <span className="td-hud-chip">
+              {persona.night ? '🌙 深夜' : '🕐'} {persona.clockIn} 来院
+            </span>
+          )}
           <span className="td-hud-chip">
             <span
               style={{
@@ -457,7 +467,7 @@ export default function TestDrive() {
             <p>
               あなたの分身を選んでください。受付から診察・会計・おくすりまで約2分。
               <br />
-              4人それぞれで、違う「待たないクリニック」の顔が見られます。
+              5人それぞれで、違う「待たないクリニック」の顔が見られます — 24時間365日、深夜でも。
             </p>
           </div>
           <div className="td-personas">

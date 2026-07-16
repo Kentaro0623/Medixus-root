@@ -24,6 +24,12 @@ export type Persona = {
   colorDark: string;
   /** 受付番号 */
   queueNo: number;
+  /** 来院時刻の表示（スマホのステータスバー等）。省略時は日中既定 */
+  clockIn?: string;
+  /** 会計時刻の表示 */
+  clockOut?: string;
+  /** 深夜受診（世界が夜になる） */
+  night?: boolean;
   intake: ChatLine[];
   intakeSummary: string;
   chat: ChatLine[];
@@ -59,7 +65,7 @@ export type Persona = {
    * - 'specialist-revisit': 初期治療で改善せず、再診時に専門医マッチングが起動
    * 専門医マッチングは「全員に使う」のではなく、必要な患者にだけ発動する。
    */
-  journey?: 'simple' | 'specialist-revisit';
+  journey?: 'simple' | 'night' | 'specialist-revisit';
 };
 
 export const PERSONAS: Persona[] = [
@@ -119,6 +125,8 @@ export const PERSONAS: Persona[] = [
     color: '#d97757',
     colorDark: '#a44f35',
     queueNo: 24,
+    clockIn: '20:15',
+    clockOut: '20:52',
     intake: [
       { who: 'dr', text: '今日はどのような症状がありますか？' },
       { who: 'pt', text: '2週間くらい頭痛が続いています。夕方にひどくなります' },
@@ -281,6 +289,54 @@ export const PERSONAS: Persona[] = [
         { specialty: '内分泌内科', note: 'TSH低値・FT4高値 ＋ 頻脈・体重減少', matched: true },
       ],
     },
+  },
+  {
+    id: 'yuto',
+    name: '高橋 悠人',
+    kana: 'タカハシ ユウト',
+    age: 29,
+    role: 'ゲーム開発者',
+    complaint: '深夜2時、急な高熱とのどの痛み',
+    tagline: '深夜2時でも、いつもの診療',
+    color: '#4a6fa5',
+    colorDark: '#33507e',
+    queueNo: 3,
+    clockIn: '2:04',
+    clockOut: '2:31',
+    night: true,
+    journey: 'night',
+    intake: [
+      { who: 'dr', text: '今日はどのような症状がありますか？' },
+      { who: 'pt', text: '1時間くらい前から急に熱が出て、のどが痛くて眠れません。いま38.5度あります' },
+      { who: 'dr', text: 'おつらいですね。近くのMedixus Clinicは今の時間も診療しています。このまま受付しますか？' },
+      { who: 'pt', text: 'お願いします。明日、大事なリリースがあるので今のうちに診てほしいです' },
+    ],
+    intakeSummary: '主訴: 急性の発熱38.5℃・咽頭痛（深夜発症・嚥下時痛あり）。咳・鼻汁なし。翌日に重要な業務予定。',
+    chat: [
+      { who: 'dr', text: '夜中に高い熱とのどの痛み、つらかったですね。のどを見せてください。……扁桃がかなり赤く腫れています。' },
+      { who: 'pt', text: '唾を飲むのも痛いです。明日、どうしても外せない仕事があって…' },
+      { who: 'dr', text: '溶連菌の迅速検査をしましょう。結果は5分で出ます。……陽性ですね。抗菌薬を出します。' },
+      { who: 'pt', text: '深夜にこんなにちゃんと診てもらえると思いませんでした。' },
+      { who: 'dr', text: 'しっかり飲めば明日には楽になってきます。3日後に経過だけ見せてください — お仕事終わりの時間で大丈夫ですよ。' },
+    ],
+    soap: {
+      s: '深夜発症の発熱（自宅38.5℃）と咽頭痛。嚥下時痛あり。咳・鼻汁なし。翌日に重要な業務予定。',
+      o: '体温38.4℃。咽頭発赤著明、両側扁桃腫大・白苔あり。溶連菌迅速抗原: 陽性。',
+      a: '溶連菌性咽頭炎（A群β溶血性レンサ球菌）。',
+      p: '抗菌薬10日分と解熱鎮痛薬を処方。飲み切りの重要性を説明。3日後に経過確認（夜間受診可を案内）。',
+    },
+    rxCandidates: ['アモキシシリンカプセル250mg 10日分', 'カロナール錠500mg 頓用'],
+    labCandidates: ['溶連菌迅速抗原検査'],
+    points: 680,
+    yen: 2040,
+    rxItems: 2,
+    revisitSummary: [
+      '前回（3日前・深夜2:04受付）: 溶連菌性咽頭炎。抗菌薬・解熱鎮痛薬を処方。',
+      '経過: 翌日昼に解熱。のどの痛みも改善。抗菌薬は服用継続中。',
+      '本日は21:00来院 — 仕事終わりに、営業時間を気にせず経過確認。',
+    ],
+    revisitPlan: '順調に改善。抗菌薬の飲み切りを再確認して終了。',
+    revisitInterstitial: '─ 3日後・仕事終わりの21時 ─',
   },
 ];
 
@@ -453,6 +509,9 @@ export const STEPS: StepDef[] = [
  * ステップ数は10（順序と文言をペルソナごとに差し替える）。
  */
 type RevisitJourneyCopy = {
+  step1Title?: string;
+  step1Desc?: string;
+  step1Hud?: { label: string; value: string };
   step4Desc: string;
   step4Note: string;
   revisitTitle: string;
@@ -466,7 +525,12 @@ type RevisitJourneyCopy = {
 function specialistRevisitSteps(c: RevisitJourneyCopy): StepDef[] {
   return [
     STEPS[0],
-    STEPS[1],
+    {
+      ...STEPS[1],
+      title: c.step1Title ?? STEPS[1].title,
+      desc: c.step1Desc ?? STEPS[1].desc,
+      hud: c.step1Hud ?? STEPS[1].hud,
+    },
     STEPS[2],
     STEPS[3],
     {
@@ -516,6 +580,10 @@ const AOI_STEPS = specialistRevisitSteps({
 });
 
 const MISAKI_STEPS = specialistRevisitSteps({
+  step1Title: '仕事終わりに、受診できる',
+  step1Desc:
+    '納期前で、日中は動けない。それでも大丈夫 — 20時すぎ、仕事終わりにスマホでAI問診と受付QRを済ませて、そのまま来院できます。',
+  step1Hud: { label: '来院時刻', value: '20:15（仕事帰り）' },
   step4Desc:
     'AIが診察の会話を聞き取り、SOAPカルテを下書き。危険なサインがないことを確認したうえで、まずはお薬と生活の工夫で2週間様子を見る方針になりました。',
   step4Note: 'AIでSOAP自動生成（医師確認必須）',
@@ -542,6 +610,43 @@ const SIMPLE_STEPS: StepDef[] = [
   { ...STEPS[9], id: 8 },
 ];
 
+/** night ジャーニー: 深夜2時の初診 → 仕事終わりの再診（24時間365日の訴求） */
+const NIGHT_STEPS: StepDef[] = SIMPLE_STEPS.map((st, i) => {
+  if (i === 1) {
+    return {
+      ...st,
+      title: '深夜2時でも、いつもの流れ',
+      desc: 'Medixus Clinicは24時間365日。急な発熱が深夜でも、AI問診が症状を整理し、受付QRを発行。昼間とまったく同じ流れで受診できます。',
+      note: '24時間365日 × AI問診',
+      hud: { label: '受診できる時間', value: '24時間365日' },
+    };
+  }
+  if (i === 3) {
+    return {
+      ...st,
+      title: '深夜の待合は、ほぼ貸切',
+      desc: '夜間は来院が少なく、呼び出しまであっという間。院内ディスプレイと通知は、昼間と同じように動いています。',
+      hud: { label: '予想待ち時間', value: '0分' },
+    };
+  }
+  if (i === 4) {
+    return {
+      ...st,
+      note: 'AIでSOAP自動生成 — 深夜でも同じ診療品質',
+    };
+  }
+  if (st.overlay === 'revisit') {
+    return {
+      ...st,
+      title: '再診は、仕事終わりに',
+      desc: '日中は忙しくても大丈夫。3日後の21時、仕事帰りに立ち寄って経過確認。AIが前回のカルテを要約して、医師に手渡します。',
+      note: '24時間365日 × AI過去カルテ要約',
+      hud: { label: '再診の来院時刻', value: '21:00（仕事帰り）' },
+    };
+  }
+  return st;
+});
+
 /** ペルソナのジャーニーに応じたステップ列を返す（identityはペルソナ単位で安定） */
 const personaStepsCache = new Map<string, StepDef[]>();
 export function stepsForPersona(persona: Persona | null): StepDef[] {
@@ -551,6 +656,8 @@ export function stepsForPersona(persona: Persona | null): StepDef[] {
   let base: StepDef[];
   if (persona.journey === 'specialist-revisit') {
     base = persona.id === 'misaki' ? MISAKI_STEPS : AOI_STEPS;
+  } else if (persona.journey === 'night') {
+    base = NIGHT_STEPS;
   } else if (persona.journey === 'simple') {
     base = SIMPLE_STEPS;
   } else {
@@ -575,7 +682,7 @@ export const FINALE_KPIS = [
   { label: '平均待ち時間', value: '8', unit: '分', delta: '−63%' },
   { label: 'カルテ作成時間', value: '1.2', unit: '分/件', delta: '−78%' },
   { label: '専門医にかかるまで', value: '0', unit: '日', delta: 'その場で合流' },
-  { label: 'レセプト照合済', value: '100', unit: '%', delta: '自動' },
+  { label: '営業時間', value: '24', unit: '時間・365日', delta: '深夜も休日も' },
   { label: '受付・会計スタッフ', value: '0', unit: '人', delta: 'ほぼ無人' },
 ];
 

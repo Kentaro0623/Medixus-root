@@ -183,7 +183,7 @@ export function PhoneIntakeOverlay({ persona }: { persona: Persona }) {
       <div className="td-phone-screen">
         <div className="td-phone-notch" />
         <div className="td-phone-status">
-          <span>9:12</span>
+          <span>{persona.clockIn ?? '9:12'}</span>
           <span>●●●</span>
         </div>
         <div style={{ padding: '0.3rem 0.9rem 0.2rem' }}>
@@ -243,7 +243,7 @@ export function PhoneIntakeOverlay({ persona }: { persona: Persona }) {
                   <QRSvg seed={persona.queueNo} size={92} />
                 </div>
                 <div style={{ fontSize: '0.62rem', color: 'var(--mx-muted)', fontWeight: 600 }}>
-                  本日 10:30　内科　担当: {DOCTOR_ROOM1}医師
+                  本日 {persona.clockIn ? `${persona.clockIn.split(':')[0]}:${String(Math.min(59, parseInt(persona.clockIn.split(':')[1]) + 15)).padStart(2, '0')}` : '10:30'}　内科　担当: {DOCTOR_ROOM1}医師
                 </div>
                 <div style={{ fontSize: '0.58rem', color: 'var(--mx-subtle)', marginTop: '0.2rem' }}>
                   クリニックのセルフ受付にかざしてください
@@ -391,24 +391,34 @@ export function BoardOverlay({ persona }: { persona: Persona }) {
           <div>
             <div style={{ fontSize: '0.62rem', fontWeight: 900, color: '#9a3412', letterSpacing: '0.1em', marginBottom: '0.35rem' }}>お呼び出し中</div>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {cell(21, 'call', '第2診察室')}
+              {!persona.night && cell(21, 'call', '第2診察室')}
               {called && cell(q, 'call', '第1診察室', true)}
+              {persona.night && !called && (
+                <span style={{ fontSize: '0.66rem', color: 'var(--mx-subtle)', fontWeight: 600, padding: '0.5rem 0' }}>—</span>
+              )}
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.7rem' }}>
             <div>
               <div style={{ fontSize: '0.62rem', fontWeight: 900, color: 'var(--mx-teal-dark)', letterSpacing: '0.1em', marginBottom: '0.35rem' }}>診察中</div>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {cell(19, 'consult', '第1')}
-                {cell(20, 'consult', '第2')}
+                {persona.night ? cell(2, 'consult', '第1') : (
+                  <>
+                    {cell(19, 'consult', '第1')}
+                    {cell(20, 'consult', '第2')}
+                  </>
+                )}
               </div>
             </div>
             <div>
               <div style={{ fontSize: '0.62rem', fontWeight: 900, color: 'var(--mx-muted)', letterSpacing: '0.1em', marginBottom: '0.35rem' }}>待合中</div>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 {!called && cell(q, 'wait')}
-                {cell(q + 1, 'wait')}
-                {cell(q + 3, 'wait')}
+                {!persona.night && cell(q + 1, 'wait')}
+                {!persona.night && cell(q + 3, 'wait')}
+                {persona.night && called && (
+                  <span style={{ fontSize: '0.66rem', color: 'var(--mx-subtle)', fontWeight: 600, padding: '0.5rem 0' }}>待合はほぼ貸切です</span>
+                )}
               </div>
             </div>
           </div>
@@ -845,7 +855,7 @@ export function PhonePayOverlay({ persona }: { persona: Persona }) {
       <div className="td-phone-screen">
         <div className="td-phone-notch" />
         <div className="td-phone-status">
-          <span>11:02</span>
+          <span>{persona.clockOut ?? '11:02'}</span>
           <span>●●●</span>
         </div>
         <div className="td-phone-body" style={{ gap: '0.6rem', paddingTop: '0.6rem' }}>

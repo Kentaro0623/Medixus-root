@@ -661,11 +661,11 @@
 
 .td-personas {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 14.5rem));
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 13.5rem));
   justify-content: center;
   gap: 0.9rem;
   width: 100%;
-  max-width: 62rem;
+  max-width: 72rem;
   animation: td-rise 0.7s 0.12s cubic-bezier(0.2, 1, 0.3, 1) backwards;
 }
 
@@ -1049,4 +1049,19 @@
     top: 3.1rem;
     left: 0.7rem;
   }
+}
+
+
+/* ── 夜モード（深夜受診ペルソナ） ─────────────── */
+.td-root.night .td-backdrop {
+  background: linear-gradient(180deg, #0d1832 0%, #16294e 55%, #1d3358 100%);
+}
+.td-root.night .td-viewport::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 30, 62, 0.14);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 5;
 }
